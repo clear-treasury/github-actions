@@ -18,6 +18,6 @@
   },
   "homepage": "https://github.com/clear-treasury/github-actions#readme",
   "workspaces": [
-    "packages/*"
+    "slack-job-updates"
   ]
 }
