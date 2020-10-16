@@ -1,0 +1,15 @@
+name: 'Slack job updates'
+description: 'Posts job progress to Slack'
+author: 'Clear Treasury Ltd.'
+inputs:
+  token:
+    description: 'The OAuth token of your Slack app'
+    required: true
+  channel:
+    description: 'The Slack channel to post the notification to'
+    required: true
+    default: 'general'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
+  post: 'dist/index.js'

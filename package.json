@@ -1,0 +1,23 @@
+{
+  "name": "github-actions",
+  "version": "1.0.0",
+  "private": true,
+  "description": "This repo contains [GitHub Actions](https://github.com/features/actions) used by other Clear Treasury repos.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/clear-treasury/github-actions.git"
+  },
+  "keywords": [
+    "github",
+    "actions"
+  ],
+  "author": "Clear Treasury Ltd",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/clear-treasury/github-actions/issues"
+  },
+  "homepage": "https://github.com/clear-treasury/github-actions#readme",
+  "workspaces": [
+    "packages/*"
+  ]
+}
