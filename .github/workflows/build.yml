@@ -35,11 +35,18 @@ jobs:
               const actionVersionPrefix = refType == 'heads' ? 'b-' : refType === 'tags' ? 'v' : 'u-';
               return actionVersionPrefix + actionVersion;
           result-encoding: string
-      - name: checkout built action branch
+      - name: git merge -s theirs 
+        # with thanks to https://stackoverflow.com/a/36321787/871188
         env:
           ACTION_VERSION: ${{ steps.built-action-version.outputs.result }}
         run: |
-          git checkout ${ACTION_VERSION} || git checkout -b ${ACTION_VERSION}
+          git config --global user.email "robot@cleartreasury.co.uk"
+          git config --global user.name "ct robot"
+          git checkout -q ${ACTION_VERSION} || git checkout -q -b ${ACTION_VERSION}
+          git merge -q --no-commit -s ours "${GITHUB_REF}"
+          git rm -q -rf .
+          git checkout -q "${GITHUB_REF}" -- .
+          git commit -q -m "Merge code branch"
       - name: build
         run: |
           for app_dir in deploy ; do
@@ -53,8 +60,6 @@ jobs:
         env:
           ACTION_VERSION: ${{ steps.built-action-version.outputs.result }}
         run: |
-          git config --global user.email "robot@cleartreasury.co.uk"
-          git config --global user.name "ct robot"
           # sed -i 's/^\(node_modules\|dist\)/# \1/' .gitignore
           git add -A
           git add -f */node_modules
