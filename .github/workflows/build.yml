@@ -1,0 +1,62 @@
+name: build
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+      - deploy
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - uses: actions/github-script@v4
+        id: built-action-version
+        with:
+          script: |
+              const refParts = context.ref.split('/');
+              const refType = refParts[1];
+              const actionVersion = refParts.slice(2).join('/');
+              const actionVersionPrefix = refType == 'heads' ? 'b-' : refType === 'tags' ? 'v' : 'u-';
+              return actionVersionPrefix + actionVersion;
+          result-encoding: string
+      - name: checkout built action branch
+        env:
+          ACTION_VERSION: ${{ steps.built-action-version.outputs.result }}
+        run: |
+          git checkout ${ACTION_VERSION} || git checkout -b ${ACTION_VERSION}
+      - name: build
+        run: |
+          for app_dir in deploy ; do
+            PREV_DIR=${PWD}
+            cd "${app_dir}"
+            npm i
+            cd ${PREV_DIR}
+          done
+      - name: push
+        if: github.event_name == 'push'
+        env:
+          ACTION_VERSION: ${{ steps.built-action-version.outputs.result }}
+        run: |
+          git config --global user.email "robot@cleartreasury.co.uk"
+          git config --global user.name "ct robot"
+          # sed -i 's/^\(node_modules\|dist\)/# \1/' .gitignore
+          git add -A
+          git add -f */node_modules
+          test -z "$(git diff-index --name-only HEAD --)" || git commit -q -m "build for $GITHUB_SHA"
+          git push -u origin ${ACTION_VERSION}
