@@ -1,67 +1,82 @@
 name: build
 
 on:
-  pull_request:
-    branches:
-      - main
   push:
-    branches:
-      - main
-      - deploy
+    branches-ignore:
+      - latest
+      - build/**
+    paths-ignore:
+      - README.md
+      - "**/README.md"
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: define branches we're juggling to build
+        uses: actions/github-script@v4
+        id: branches
         with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v2
+          script: |
+              const refParts = context.ref.split('/');
+              const shortRef = refParts.slice(2).join('/');
+              core.setOutput('branch', shortRef);
+              core.setOutput('buildBranch', `tmp/build/${shortRef}`);
+              core.setOutput('realBuildBranch', shortRef === 'main' ? 'latest' : `build/${shortRef}`);
+          result-encoding: string
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: align node version with action runtime
+        uses: actions/setup-node@v2
         with:
           node-version: '12'
-      - uses: actions/cache@v2
+      - name: cache npm
+        uses: actions/cache@v2
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-      - uses: actions/github-script@v4
-        id: built-action-version
-        with:
-          script: |
-              const refParts = context.ref.split('/');
-              const refType = refParts[1];
-              const actionVersion = refParts.slice(2).join('/');
-              const actionVersionPrefix = refType == 'heads' ? 'b-' : refType === 'tags' ? 'v' : 'u-';
-              return actionVersionPrefix + actionVersion;
-          result-encoding: string
-      - name: git merge -s theirs 
-        # with thanks to https://stackoverflow.com/a/36321787/871188
-        env:
-          ACTION_VERSION: ${{ steps.built-action-version.outputs.result }}
+      - name: build all the actions
         run: |
-          git config --global user.email "robot@cleartreasury.co.uk"
-          git config --global user.name "ct robot"
-          git checkout -q ${ACTION_VERSION} || git checkout -q -b ${ACTION_VERSION}
-          git merge -q --no-commit -s ours "${GITHUB_REF}"
-          git rm -q -rf .
-          git checkout -q "${GITHUB_REF}" -- .
-          git commit -q -m "Merge code branch"
-      - name: build
-        run: |
-          for app_dir in deploy ; do
+          for package_json in */package.json ; do
+            app_dir=${package_json%/*}
             PREV_DIR=${PWD}
             cd "${app_dir}"
             npm i
             cd ${PREV_DIR}
           done
-      - name: push
-        if: github.event_name == 'push'
+      - name: push to tmp branch in preparation for setting commit status
+        id: buildCommit
         env:
-          ACTION_VERSION: ${{ steps.built-action-version.outputs.result }}
+          BRANCH: ${{ steps.branches.outputs.branch }}
+          BUILD_BRANCH: ${{ steps.branches.outputs.buildBranch }}
         run: |
-          # sed -i 's/^\(node_modules\|dist\)/# \1/' .gitignore
+          git config --global user.email "robot@cleartreasury.co.uk"
+          git config --global user.name "ct robot"
           git add -A
           git add -f */node_modules
           test -z "$(git diff-index --name-only HEAD --)" || git commit -q -m "build for $GITHUB_SHA"
-          git push -u origin ${ACTION_VERSION}
+          echo "::set-output name=sha::$(git rev-parse HEAD)"
+          git push origin "${BRANCH}":"${BUILD_BRANCH}" -f
+      - name: set commit status
+        uses: actions/github-script@v4
+        env:
+          BUILD_COMMIT_SHA: ${{ steps.buildCommit.outputs.sha }}
+        with:
+          script: |
+              github.repos.createCommitStatus({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  sha: process.env.BUILD_COMMIT_SHA,
+                  context: 'built',
+                  state: 'success',
+              });
+      - name: push to build branch and delete tmp branch
+        env:
+          BRANCH: ${{ steps.branches.outputs.branch }}
+          BUILD_BRANCH: ${{ steps.branches.outputs.buildBranch }}
+          REAL_BUILD_BRANCH: ${{ steps.branches.outputs.realBuildBranch }}
+        run: |
+          git push origin "${BRANCH}":"${REAL_BUILD_BRANCH}" -f
+          git push -u origin --delete "${BUILD_BRANCH}"
