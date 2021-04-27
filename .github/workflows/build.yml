@@ -1,0 +1,82 @@
+name: build
+
+on:
+  push:
+    branches-ignore:
+      - latest
+      - build/**
+    paths-ignore:
+      - README.md
+      - "**/README.md"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: define branches we're juggling to build
+        uses: actions/github-script@v4
+        id: branches
+        with:
+          script: |
+              const refParts = context.ref.split('/');
+              const shortRef = refParts.slice(2).join('/');
+              core.setOutput('branch', shortRef);
+              core.setOutput('buildBranch', `tmp/build/${shortRef}`);
+              core.setOutput('realBuildBranch', shortRef === 'main' ? 'latest' : `build/${shortRef}`);
+          result-encoding: string
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: align node version with action runtime
+        uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+      - name: cache npm
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: build all the actions
+        run: |
+          for package_json in */package.json ; do
+            app_dir=${package_json%/*}
+            PREV_DIR=${PWD}
+            cd "${app_dir}"
+            npm i
+            cd ${PREV_DIR}
+          done
+      - name: push to tmp branch in preparation for setting commit status
+        id: buildCommit
+        env:
+          BRANCH: ${{ steps.branches.outputs.branch }}
+          BUILD_BRANCH: ${{ steps.branches.outputs.buildBranch }}
+        run: |
+          git config --global user.email "robot@cleartreasury.co.uk"
+          git config --global user.name "ct robot"
+          git add -A
+          git add -f */node_modules
+          test -z "$(git diff-index --name-only HEAD --)" || git commit -q -m "build for $GITHUB_SHA"
+          echo "::set-output name=sha::$(git rev-parse HEAD)"
+          git push origin "${BRANCH}":"${BUILD_BRANCH}" -f
+      - name: set commit status
+        uses: actions/github-script@v4
+        env:
+          BUILD_COMMIT_SHA: ${{ steps.buildCommit.outputs.sha }}
+        with:
+          script: |
+              github.repos.createCommitStatus({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  sha: process.env.BUILD_COMMIT_SHA,
+                  context: 'built',
+                  state: 'success',
+              });
+      - name: push to build branch and delete tmp branch
+        env:
+          BRANCH: ${{ steps.branches.outputs.branch }}
+          BUILD_BRANCH: ${{ steps.branches.outputs.buildBranch }}
+          REAL_BUILD_BRANCH: ${{ steps.branches.outputs.realBuildBranch }}
+        run: |
+          git push origin "${BRANCH}":"${REAL_BUILD_BRANCH}" -f
+          git push -u origin --delete "${BUILD_BRANCH}"
