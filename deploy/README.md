@@ -2,22 +2,41 @@
 
 This will be the AWS deployment machinery.
 
-Currently this action prints "Hello World" or "Hello" + the name of a person to greet to the log.
-
 ## Inputs
 
-### `who-to-greet`
+### `access-key-id`
 
-**Required** The name of the person to greet. Default `"World"`.
+**Required** The aws access key id
+
+### `secret-access-key`
+
+**Required** The aws secret access key
+
+### `session-token`
+
+The aws session token
+
+### `region`
+
+The aws region
 
 ## Outputs
 
-### `time`
+### `success`
 
-The time we greeted you.
+Result of the deployment
+
+### `code`
+
+A final status code for the deployment
+
+### `message`
+
+A human readable description of the final status of the deployment
 
 ## Example usage
 
-uses: actions/hello-world-javascript-action@v1.1
+uses: clear-treasury/github-actions/deploy@latest
 with:
-  who-to-greet: 'Mona the Octocat'
+  access-key-id: A???
+  secret-access-key: ????????
