@@ -1,13 +1,35 @@
-name: 'Hello World'
-description: 'Greet someone and record the time'
+name: 'aws deployment'
+description: 'deploy to aws'
 inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
+  access-key-id:
+    description: 'the aws access key id'
     required: true
-    default: 'World'
+  secret-access-key:
+    description: 'the aws secret access key'
+    required: true
+  session-token:
+    description: 'the aws session token if required'
+    required: false
+  artifact-bucket:
+    description: 'the bucket for built artifacts'
+    required: false
+  artifacts:
+    description: 'a list of artifacts'
+    required: false
+  region:
+    description: 'the aws region'
+    required: false
 outputs:
-  time: # id of output
-    description: 'The time we greeted you'
+  success:
+    description: 'result of the deployment'
+  code:
+    description: 'a final status code for the deployment'
+  message:
+    description: 'a human readable description of the final status of the deployment'
 runs:
-  using: 'node12'
-  main: 'index.js'
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - "AWS_ACCESS_KEY_ID=${{ inputs.access-key-id }}"
+    - "AWS_SECRET_ACCESS_KEY=${{ inputs.secret-access-key }}"
+    - "AWS_DEFAULT_REGION=${{ inputs.region }}"

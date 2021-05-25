@@ -1,0 +1,5 @@
+name: 'action gardener'
+description: 'keep actions in sync'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
