@@ -33,14 +33,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: test check
-        id: test-check
-        run: |
-          echo -n "::set-output name=present::"
-          test -x test.sh && echo "true" || echo "false"
-      - name: test cmd
-        if: steps.test-check.outputs.present == 'true'
-        run: ./test.sh
+      - name: test
+        run: npm run test
 
   deploy-dev:
     runs-on: ubuntu-latest
