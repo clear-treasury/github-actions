@@ -39,7 +39,11 @@ jobs:
         run: test -f test.sh
       - run: echo "::set-output name=foo::bar"
       - name: ah
-        run: "echo ${{ toJson(steps) }}"
+        env:
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+        run: |
+            echo "$STEPS_CONTEXT"
+            echo ${{ toJson(steps) }}
       - name: test cmd
         if: steps.test-check.outputs.present == 'aaah'
         run: test.sh
