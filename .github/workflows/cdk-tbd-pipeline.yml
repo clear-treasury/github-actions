@@ -34,10 +34,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: test-check
+        id: test-check
         run: test -f test.sh && echo "::set-output name=present::aaah" || echo "::set-output name=present::false"
       - name: test-check-debug
         run: test -f test.sh
       - run: echo "::set-output name=foo::bar"
+        id: yolo
       - name: ah
         env:
           STEPS_CONTEXT: ${{ toJson(steps) }}
