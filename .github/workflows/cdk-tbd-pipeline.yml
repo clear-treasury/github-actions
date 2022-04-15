@@ -35,6 +35,8 @@ jobs:
       - uses: actions/checkout@v3
       - name: test-check
         run: test -f test.sh && echo "::set-output name=present::true" || echo "::set-output name=present::false"
+      - name: test-check-debug
+        run: test -f test.sh
       - name: test cmd
         if: steps.test-check.outputs.present == true
         run: test.sh
