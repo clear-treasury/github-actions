@@ -16,9 +16,9 @@ runs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
-        aws-access-key-id: ${{ input.aws_access_key_id }}
-        aws-secret-access-key: ${{ input.aws_secret_access_key }}
-        aws-region: ${{ input.aws_region }}
+        aws-access-key-id: ${{ inputs.aws_access_key_id }}
+        aws-secret-access-key: ${{ inputs.aws_secret_access_key }}
+        aws-region: ${{ inputs.aws_region }}
     - name: CDK bootstrap
       run: cdk bootstrap
     - name: CDK deploy
