@@ -27,6 +27,7 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       run: npm ci
       shell: bash
+    - run: "echo ${{ inputs.aws_region }}"
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:

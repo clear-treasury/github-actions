@@ -39,10 +39,6 @@ jobs:
       - integration-test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
-        with:
-          name: ${{ inputs.download_artifact }}
       - uses: clear-treasury/github-actions/actions/cdk-deploy@deploy-rework
         with:
           aws_access_key_id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
