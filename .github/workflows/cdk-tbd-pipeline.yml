@@ -58,7 +58,7 @@ jobs:
           working-directory: ${{ inputs.working-directory }}
           environment_name: main
 
-  check:
+  notify-failure:
     needs:
       - deploy-dev
       - deploy-prod
