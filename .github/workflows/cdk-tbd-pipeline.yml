@@ -2,11 +2,18 @@ name: CDK TBD pipeline
 on:
   workflow_call:
     secrets:
-      aws-access-key-id:
+      prod-aws-access-key-id:
         required: true
-      aws-secret-access-key:
+      prod-aws-secret-access-key:
         required: true
-      aws-region:
+      prod-aws-region:
+        required: true
+
+      nonprod-aws-access-key-id:
+        required: true
+      nonprod-aws-secret-access-key:
+        required: true
+      nonprod-aws-region:
         required: true
     inputs:
       download-artifact:
@@ -27,9 +34,9 @@ jobs:
     steps:
       - uses: clear-treasury/github-actions/actions/cdk-deploy@deploy-rework
         with:
-          aws-access-key-id: ${{ secrets.aws-access-key-id }}
-          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
-          aws-region: ${{ secrets.aws-region }}
+          aws-access-key-id: ${{ secrets.nonprod-aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.nonprod-aws-secret-access-key }}
+          aws-region: ${{ secrets.nonprod-aws-region }}
           working-directory: ${{ inputs.working-directory }}
           environment-name: dev
 
@@ -52,9 +59,9 @@ jobs:
     steps:
       - uses: clear-treasury/github-actions/actions/cdk-deploy@deploy-rework
         with:
-          aws-access-key-id: ${{ secrets.aws-access-key-id }}
-          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
-          aws-region: ${{ secrets.aws-region }}
+          aws-access-key-id: ${{ secrets.prod-aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.prod-aws-secret-access-key }}
+          aws-region: ${{ secrets.prod-aws-region }}
           working-directory: ${{ inputs.working-directory }}
           environment-name: main
 
