@@ -10,6 +10,8 @@ inputs:
   working-directory:
     required: false
     default: ./
+  branch:
+    required: true
 branding:
   icon: upload-cloud
   color: orange
@@ -42,8 +44,8 @@ runs:
     - name: CDK deploy
       working-directory: ${{ inputs.working-directory }}
       run: >
-        echo node_modules/.bin/cdk deploy --require-approval=never -c branch="${BRANCH}"
-        -c stack_name="${BRANCH}-${{ github.event.repository.id }}"
-        -c stack_description="${{ github.event.repository.html_url }}/tree/${BRANCH}"
+        echo node_modules/.bin/cdk deploy --require-approval=never -c branch="${{ inputs.branch }}"
+        -c stack_name="${{ inputs.branch }}-${{ github.event.repository.id }}"
+        -c stack_description="${{ github.event.repository.html_url }}/tree/${{ inputs.branch }}"
         --all
       shell: bash
