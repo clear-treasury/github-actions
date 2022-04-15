@@ -29,6 +29,17 @@ on:
         default: .
 
 jobs:
+  test:
+    name: test
+    needs:
+      - deploy-dev
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: integration test cmd
+          ls -la
+          touch integration-test
+
   deploy-dev:
     runs-on: ubuntu-latest
     steps:
@@ -47,10 +58,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: integration test cmd
+      # - name: integration-test-check
+      #   run: |
+      #     echo -n "::set-output name=present::"
+      #     test -f integration_test.sh && echo "true" || echo "false"
+      - name: integration-test-check
         run: |
-          ls -la
-          touch integration-test
+          test -f integration_test.sh && echo -n "::set-output name=present::1"
+      - name: integration test cmd
+        # if: ${{ steps.integration-test-check.outputs.present == "true" }}
+        if: ${{ steps.integration-test-check.outputs.present }}
+        run: integration_test.sh
 
   deploy-prod:
     needs:
