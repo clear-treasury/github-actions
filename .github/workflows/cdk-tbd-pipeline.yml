@@ -37,6 +37,8 @@ jobs:
         run: test -f test.sh && echo "::set-output name=present::aaah" || echo "::set-output name=present::false"
       - name: test-check-debug
         run: test -f test.sh
+      - name: ah
+        run: "echo ${{ toJSON(steps.test-check.outputs) }}"
       - name: test cmd
         if: steps.test-check.outputs.present == 'aaah'
         run: test.sh
