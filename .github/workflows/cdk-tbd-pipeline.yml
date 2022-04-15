@@ -36,7 +36,7 @@ jobs:
       - name: test check
         id: test-check
         run: |
-          echo "::set-output name=present::"
+          echo -n "::set-output name=present::"
           test -f test.sh && echo "true" || echo "false"
         # run: test -f test.sh && echo "::set-output name=present::aaah" || echo "::set-output name=present::false"
       - name: ah
