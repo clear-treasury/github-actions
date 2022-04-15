@@ -58,16 +58,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      # - name: integration-test-check
-      #   run: |
-      #     echo -n "::set-output name=present::"
-      #     test -f integration_test.sh && echo "true" || echo "false"
       - name: integration-test-check
         run: |
-          test -f integration_test.sh && echo -n "::set-output name=present::1"
+          echo -n "::set-output name=present::"
+          test -f integration_test.sh && echo "true" || echo "false"
       - name: integration test cmd
-        # if: ${{ steps.integration-test-check.outputs.present == "true" }}
-        if: ${{ steps.integration-test-check.outputs.present }}
+        if: ${{ steps.integration-test-check.outputs.present == "true" }}
         run: integration_test.sh
 
   deploy-prod:
