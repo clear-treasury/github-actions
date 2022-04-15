@@ -38,6 +38,10 @@ jobs:
         run: |
           echo -n "::set-output name=present::"
           test -x test.sh && echo "true" || echo "false"
+      - env:
+          STEPS_CONTEXT: ${{ toJson(steps.test-check.outputs.present) }}
+        run: |
+          echo "$STEPS_CONTEXT"
       - name: test cmd
         if: steps.test-check.outputs.present
         run: ./test.sh
