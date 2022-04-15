@@ -1,6 +1,8 @@
 name: CDK deploy
 description: deploy some cdk
 inputs:
+  environment_name:
+    required: true
   aws_access_key_id:
     required: true
   aws_secret_access_key:
@@ -42,8 +44,8 @@ runs:
     - name: CDK deploy
       working-directory: ${{ inputs.working-directory }}
       run: >
-        echo node_modules/.bin/cdk deploy --require-approval=never -c branch="${{ github.ref_name }}"
-        -c stack_name="${{ github.ref_name }}-${{ github.event.repository.id }}"
-        -c stack_description="${{ github.event.repository.html_url }}/tree/${{ github.ref_name }}"
+        echo node_modules/.bin/cdk deploy --require-approval=never -c branch="${{ inputs.environment_name }}"
+        -c stack_name="${{ inputs.environment_name }}-${{ github.event.repository.id }}"
+        -c stack_description="${{ github.event.repository.html_url }}/tree/${{ inputs.environment_name }}"
         --all
       shell: bash
