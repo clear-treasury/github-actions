@@ -1,0 +1,29 @@
+name: CDK deploy
+description: deploy some cdk
+inputs:
+  aws_access_key_id:
+    required: true
+  aws_secret_access_key:
+    required: true
+  aws_region:
+    required: true
+branding:
+  icon: upload-cloud
+  color: orange
+runs:
+  using: composite
+  steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ input.aws_access_key_id }}
+        aws-secret-access-key: ${{ input.aws_secret_access_key }}
+        aws-region: ${{ input.aws_region }}
+    - name: CDK bootstrap
+      run: cdk bootstrap
+    - name: CDK deploy
+      run: >
+        echo cdk deploy --require-approval=never -c branch="${BRANCH}"
+        -c stack_name="${BRANCH}-${{ github.event.repository.id }}"
+        -c stack_description="${{ github.event.repository.html_url }}/tree/${BRANCH}"
+        --all
