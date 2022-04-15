@@ -16,6 +16,10 @@ branding:
 runs:
   using: composite
   steps:
+    - name: list
+      working-directory: ${{ inputs.working-directory }}
+      run: ls -la
+      shell: bash
     - name: install dependancies
       working-directory: ${{ inputs.working-directory }}
       run: npm ci
