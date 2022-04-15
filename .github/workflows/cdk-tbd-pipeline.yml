@@ -9,27 +9,18 @@ on:
         default: build
         required: false
         type: string
-    secrets:
-      aws_access_key_id:
-        required: true
-      aws_secret_access_key:
-        required: true
-      aws_region:
-        required: true
 
 jobs:
   deploy-dev:
     runs-on: ubuntu-latest
+    environment:
+      environment_name: dev
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
-        with:
-          name: ${{ inputs.download_artifact }}
       - uses: clear-treasury/github-actions/actions/cdk-deploy@deploy-rework
         with:
-          aws_access_key_id: ${{ secrets.aws_access_key_id }}
-          aws_secret_access_key: ${{ secrets.aws_secret_access_key }}
-          aws_region: ${{ secrets.aws_region }}
+          aws_access_key_id: ${{ secrets.NONPROD_AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.NONPROD_AWS_SECRET_ACCESS_KEY }}
+          aws_region: ${{ secrets.NONPROD_AWS_DEFAULT_REGION }}
           working-directory: ./
           environment_name: dev
 
@@ -51,17 +42,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: download build
-        uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v3
         with:
-          name: build-prod
-          path: ./build
-      - name: deploy cmd
-        run: |
-          ls -la
-          test -f ./build/build-prod
-          test -f working-prod
-          touch deploy-prod
+          name: ${{ inputs.download_artifact }}
+      - uses: clear-treasury/github-actions/actions/cdk-deploy@deploy-rework
+        with:
+          aws_access_key_id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
+          # broken as nonprod on purpose
+          aws_secret_access_key: ${{ secrets.NONPROD_AWS_SECRET_ACCESS_KEY }}
+          aws_region: ${{ secrets.PROD_AWS_DEFAULT_REGION }}
+          working-directory: ./
+          environment_name: dev
 
   check:
     needs:

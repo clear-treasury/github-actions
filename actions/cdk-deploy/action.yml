@@ -18,15 +18,11 @@ branding:
 runs:
   using: composite
   steps:
-    - name: list
-      working-directory: ${{ inputs.working-directory }}
-      run: ls -la
-      shell: bash
-    - name: Setup node
-      uses: actions/setup-node@v3
+    - uses: actions/setup-node@v3
       with:
         node-version: 16
         cache: npm
+    - uses: actions/checkout@v3
     - name: install dependancies
       working-directory: ${{ inputs.working-directory }}
       run: npm ci
