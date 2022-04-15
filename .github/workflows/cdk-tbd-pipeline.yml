@@ -43,7 +43,7 @@ jobs:
         run: |
           echo "$STEPS_CONTEXT"
       - name: test cmd
-        if: steps.test-check.outputs.present
+        if: steps.test-check.outputs.present == 'true'
         run: ./test.sh
 
   # deploy-dev:
