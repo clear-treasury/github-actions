@@ -13,8 +13,6 @@ on:
 jobs:
   deploy-dev:
     runs-on: ubuntu-latest
-    environment:
-      environment_name: dev
     steps:
       - uses: clear-treasury/github-actions/actions/cdk-deploy@deploy-rework
         with:
