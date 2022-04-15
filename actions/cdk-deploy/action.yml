@@ -37,12 +37,12 @@ runs:
         aws-region: ${{ inputs.aws_region }}
     - name: CDK bootstrap
       working-directory: ${{ inputs.working-directory }}
-      run: cdk bootstrap
+      run: node_modules/.bin/cdk bootstrap
       shell: bash
     - name: CDK deploy
       working-directory: ${{ inputs.working-directory }}
       run: >
-        echo cdk deploy --require-approval=never -c branch="${BRANCH}"
+        echo node_modules/.bin/cdk deploy --require-approval=never -c branch="${BRANCH}"
         -c stack_name="${BRANCH}-${{ github.event.repository.id }}"
         -c stack_description="${{ github.event.repository.html_url }}/tree/${BRANCH}"
         --all
