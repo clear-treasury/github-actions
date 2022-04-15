@@ -26,12 +26,12 @@ jobs:
         with:
           name: ${{ inputs.download_artifact }}
       - uses: clear-treasury/github-actions/actions/cdk-deploy@deploy-rework
-         with:
-           aws_access_key_id: ${{ secrets.aws_access_key_id }}
-           aws_secret_access_key: ${{ secrets.aws_secret_access_key }}
-           aws_region: ${{ secrets.aws_region }}
-           working-directory: ./
-           environment_name: dev
+        with:
+          aws_access_key_id: ${{ secrets.aws_access_key_id }}
+          aws_secret_access_key: ${{ secrets.aws_secret_access_key }}
+          aws_region: ${{ secrets.aws_region }}
+          working-directory: ./
+          environment_name: dev
 
   integration-test:
     name: integration test
