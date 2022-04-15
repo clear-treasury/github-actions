@@ -37,6 +37,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: integration test cmd
+        run: |
           ls -la
           touch integration-test
 
