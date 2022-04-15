@@ -21,8 +21,8 @@ jobs:
   deploy-dev:
     runs-on: ubuntu-latest
     steps:
-      - name: download build
-        uses: actions/download-artifact@v3
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.download_artifact }}
       - uses: clear-treasury/github-actions/actions/cdk-deploy@deploy-rework
