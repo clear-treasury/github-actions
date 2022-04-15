@@ -20,6 +20,11 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       run: ls -la
       shell: bash
+    - name: Setup node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16
+        cache: "npm"
     - name: install dependancies
       working-directory: ${{ inputs.working-directory }}
       run: npm ci
