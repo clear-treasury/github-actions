@@ -33,10 +33,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: integration test cmd
+      - name: test-check
         run: |
-          ls -la
-          touch integration-test
+          echo -n "::set-output name=present::"
+          test -f test.sh && echo "true" || echo "false"
+      - run: |
+          test -f test.sh && echo "true" || echo "false"
+      - name: test cmd
+        if: steps.test-check.outputs.present == true
+        run: test.sh
 
   deploy-dev:
     runs-on: ubuntu-latest
