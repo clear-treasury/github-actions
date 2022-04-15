@@ -1,13 +1,13 @@
 name: CDK deploy
 description: deploy some cdk
 inputs:
-  environment_name:
+  environment-name:
     required: true
-  aws_access_key_id:
+  aws-access-key-id:
     required: true
-  aws_secret_access_key:
+  aws-secret-access-key:
     required: true
-  aws_region:
+  aws-region:
     required: true
   working-directory:
     required: false
@@ -27,16 +27,16 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       run: npm ci
       shell: bash
-    - run: "echo ${{ inputs.environment_name }}"
+    - run: "echo ${{ inputs.environment-name }}"
       shell: bash
-    - run: "echo ${{ inputs.aws_region }}"
+    - run: "echo ${{ inputs.aws-region }}"
       shell: bash
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
-        aws-access-key-id: ${{ inputs.aws_access_key_id }}
-        aws-secret-access-key: ${{ inputs.aws_secret_access_key }}
-        aws-region: ${{ inputs.aws_region }}
+        aws-access-key-id: ${{ inputs.aws-access-key-id }}
+        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
+        aws-region: ${{ inputs.aws-region }}
     - name: CDK bootstrap
       working-directory: ${{ inputs.working-directory }}
       run: node_modules/.bin/cdk bootstrap
@@ -44,8 +44,8 @@ runs:
     - name: CDK deploy
       working-directory: ${{ inputs.working-directory }}
       run: >
-        echo node_modules/.bin/cdk deploy --require-approval=never -c branch="${{ inputs.environment_name }}"
-        -c stack_name="${{ inputs.environment_name }}-${{ github.event.repository.id }}"
-        -c stack_description="${{ github.event.repository.html_url }}/tree/${{ inputs.environment_name }}"
+        echo node_modules/.bin/cdk deploy --require-approval=never -c branch="${{ inputs.environment-name }}"
+        -c stack_name="${{ inputs.environment-name }}-${{ github.event.repository.id }}"
+        -c stack_description="${{ github.event.repository.html_url }}/tree/${{ inputs.environment-name }}"
         --all
       shell: bash
