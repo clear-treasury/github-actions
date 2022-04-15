@@ -27,9 +27,9 @@ jobs:
     steps:
       - uses: clear-treasury/github-actions/actions/cdk-deploy@deploy-rework
         with:
-          aws_access_key_id: "${{ secrets.aws_access_key_id }}"
-          aws_secret_access_key: "${{ secrets.aws_secret_access_key }}"
-          aws_region: "${{ secrets.aws_region }}"
+          aws_access_key_id: ${{ secrets.aws_access_key_id }}
+          aws_secret_access_key: ${{ secrets.aws_secret_access_key }}
+          aws_region: ${{ secrets.aws_region }}
           working-directory: ${{ inputs.working-directory }}
           environment_name: dev
 
@@ -52,12 +52,11 @@ jobs:
     steps:
       - uses: clear-treasury/github-actions/actions/cdk-deploy@deploy-rework
         with:
-          aws_access_key_id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
-          # broken as nonprod on purpose
-          aws_secret_access_key: ${{ secrets.NONPROD_AWS_SECRET_ACCESS_KEY }}
-          aws_region: ${{ secrets.PROD_AWS_DEFAULT_REGION }}
-          working-directory: ./
-          environment_name: dev
+          aws_access_key_id: ${{ secrets.aws_access_key_id }}
+          aws_secret_access_key: ${{ secrets.aws_secret_access_key }}
+          aws_region: ${{ secrets.aws_region }}
+          working-directory: ${{ inputs.working-directory }}
+          environment_name: main
 
   check:
     needs:
