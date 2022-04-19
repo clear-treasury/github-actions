@@ -15,6 +15,7 @@ on:
         required: true
       nonprod-aws-region:
         required: true
+
     inputs:
       download-artifact:
         required: false
@@ -23,7 +24,23 @@ on:
         default: build
         required: false
         type: string
+
+      pre-build:
+        required: false
+        type: boolean
+        default: false
+
+      do-integration-test:
+        required: false
+        type: boolean
+        default: false
+
       working-directory:
+        required: false
+        type: string
+        default: .
+
+      infra-working-directory:
         required: false
         type: string
         default: .
@@ -31,6 +48,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    if: inputs.prebuild && inputs.working-directory != inputs.infra-working-directory
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -44,21 +62,55 @@ jobs:
         working-directory: ${{ inputs.working-directory }}
         run: npm run test
 
+  test-infra:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: npm
+      - name: install dependancies
+        working-directory: ${{ inputs.infra-working-directory }}
+        run: npm ci
+      - name: test
+        working-directory: ${{ inputs.infra-working-directory }}
+        run: npm run test
+
+  # build:
+  #   runs-on: ubuntu-latest
+  #   if: inputs.prebuild
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 16
+  #         cache: npm
+  #     - name: install dependancies
+  #       working-directory: ${{ inputs.working-directory }}
+  #       run: npm ci
+  #     - name: test
+  #       working-directory: ${{ inputs.working-directory }}
+  #       run: npm run build
+
   deploy-dev:
     runs-on: ubuntu-latest
     needs:
       - test
+      - test-infra
+      # - build
     steps:
       - uses: clear-treasury/github-actions/actions/cdk-deploy@deploy-rework
         with:
           aws-access-key-id: ${{ secrets.nonprod-aws-access-key-id }}
           aws-secret-access-key: ${{ secrets.nonprod-aws-secret-access-key }}
           aws-region: ${{ secrets.nonprod-aws-region }}
-          working-directory: ${{ inputs.working-directory }}
+          working-directory: ${{ inputs.infra-working-directory }}
           environment-name: dev
 
   integration-test:
     name: integration test
+    if: inputs.do-integration-test
     needs:
       - deploy-dev
     runs-on: ubuntu-latest
@@ -69,7 +121,7 @@ jobs:
           node-version: 16
           cache: npm
       - name: install dependancies
-        working-directory: ${{ inputs.working-directory }}
+        working-directory: ${{ inputs.infra-working-directory }}
         run: npm ci
       - name: integration test check
         id: integration-test-check
@@ -90,7 +142,7 @@ jobs:
           aws-access-key-id: ${{ secrets.prod-aws-access-key-id }}
           aws-secret-access-key: ${{ secrets.prod-aws-secret-access-key }}
           aws-region: ${{ secrets.prod-aws-region }}
-          working-directory: ${{ inputs.working-directory }}
+          working-directory: ${{ inputs.infra-working-directory }}
           environment-name: main
 
   notify-failure:
