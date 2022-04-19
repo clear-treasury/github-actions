@@ -99,7 +99,7 @@ jobs:
       - test
       - test-infra
       # - build
-    if: (needs.test.result == 'success' || needs.test.result == 'skipped') && (needs.test-infra.result == 'success' || needs.test-infra.result == 'skipped')
+    if: always() && (needs.test.result == 'success' || needs.test.result == 'skipped') && (needs.test-infra.result == 'success' || needs.test-infra.result == 'skipped')
     steps:
       - uses: clear-treasury/github-actions/actions/cdk-deploy@deploy-rework
         with:
