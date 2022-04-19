@@ -1,0 +1,55 @@
+name: Install dependencies
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: "The directory name in which to install dependencies. Defaults to root"
+        default: ''
+        required: false
+        type: string        
+
+env:
+  PATH_PREFIX: {{ $inputs.working-directory != '' && format('{0}/', $inputs.working-directory) || '' }}
+  CACHE_PREFIX: {{ $inputs.working-directory != '' && format('{0}-', $inputs.working-directory) || '' }}
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: {{ $inputs.working-directory }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          # AWS lambdas are still on Node 14 https://github.com/aws/aws-lambda-base-images/issues/14
+          node-version: "14"
+          cache: "npm"
+          cache-dependency-path: "{{ $env.PATH_PREFIX }}package-lock.json"
+          # Our Design System is on github's package registry
+          registry-url: "https://npm.pkg.github.com"
+
+      - name: Cache infra dependencies
+        uses: actions/cache@v3
+        with:
+          path: {{ $env.PATH_PREFIX }}node_modules
+          key: {{ $env.CACHE_PREFIX }}node_modules-${{ hashFiles('{{ $env.PATH_PREFIX }}package-lock.json') }}
+          restore-keys: {{ $env.CACHE_PREFIX }}node_modules-
+
+      # Skip post-install scripts here, as a malicious script could steal NODE_AUTH_TOKEN.
+      - name: Install dependencies (without scripts)
+        # Use npm 7 for auto peer-dependency resolution
+        run: npm i -g npm@7 && npm ci --ignore-scripts
+        env:
+          # See https://github.com/actions/setup-node/blob/main/docs/advanced-usage.md#use-private-packages
+          NODE_AUTH_TOKEN: ${{ secrets.GPR_READ_TOKEN }}
+
+      # `npm rebuild` will run all those post-install scripts for us.
+      - name: Run post-install scripts
+        run: npm rebuild && npm run prepare --if-present
