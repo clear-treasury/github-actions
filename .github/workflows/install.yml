@@ -9,10 +9,6 @@ on:
         required: false
         type: string        
 
-env:
-  PATH_PREFIX: {{ $inputs.working-directory != '' && format('{0}/', $inputs.working-directory) || '' }}
-  CACHE_PREFIX: {{ $inputs.working-directory != '' && format('{0}-', $inputs.working-directory) || '' }}
-
 jobs:
   install:
     runs-on: ubuntu-latest
@@ -20,6 +16,10 @@ jobs:
     defaults:
       run:
         working-directory: {{ $inputs.working-directory }}
+
+    env:
+      PATH_PREFIX: {{ $inputs.working-directory != '' && format('{0}/', $inputs.working-directory) || '' }}
+      CACHE_PREFIX: {{ $inputs.working-directory != '' && format('{0}-', $inputs.working-directory) || '' }}
 
     steps:
       - name: Checkout repo
