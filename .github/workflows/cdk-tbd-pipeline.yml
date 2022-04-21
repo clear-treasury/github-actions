@@ -45,6 +45,11 @@ on:
         type: string
         default: .
 
+      integration-test-working-directory:
+        required: false
+        type: string
+        default: .
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -122,21 +127,17 @@ jobs:
           node-version: 16
           cache: npm
       - name: install dependancies
-        working-directory: ${{ inputs.infra-working-directory }}
+        working-directory: ${{ inputs.integration-test-working-directory }}
         run: npm ci
-      - name: integration test check
-        id: integration-test-check
-        run: |
-          echo -n "::set-output name=present::"
-          test -x integration_test.sh && echo "true" || echo "false"
-      - name: integration test cmd
-        if: steps.test-check.outputs.present == 'true'
-        run: ./test.sh
+      - name: test
+        working-directory: ${{ inputs.integration-test-working-directory }}
+        run: npm run integration-test
 
   deploy-prod:
     needs:
       - integration-test
     runs-on: ubuntu-latest
+    if: always() && (needs.integration-test.result == 'success' || needs.integration-test.result == 'skipped')
     steps:
       - uses: clear-treasury/github-actions/actions/cdk-deploy@deploy-rework
         with:
