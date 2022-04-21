@@ -104,8 +104,11 @@ jobs:
       - test
       - test-infra
       # - build
-    if: always() && (needs.test.result == 'success' || needs.test.result == 'skipped') && (needs.test-infra.result == 'success' || needs.test-infra.result == 'skipped')
+    if: always()
     steps:
+      - name: fail if conditional job failed
+        if: ${{ needs.test-infra.result == 'failure' || needs.test.result == 'failure' }}
+        run: exit 1
       - uses: clear-treasury/github-actions/actions/cdk-deploy@deploy-rework
         with:
           aws-access-key-id: ${{ secrets.nonprod-aws-access-key-id }}
@@ -137,8 +140,11 @@ jobs:
     needs:
       - integration-test
     runs-on: ubuntu-latest
-    if: always() && (needs.integration-test.result == 'success' || needs.integration-test.result == 'skipped')
+    if: always()
     steps:
+      - name: fail if conditional job failed
+        if: ${{ needs.integration-test.result == 'failure' || needs.test.result == 'failure' }}
+        run: exit 1
       - uses: clear-treasury/github-actions/actions/cdk-deploy@deploy-rework
         with:
           aws-access-key-id: ${{ secrets.prod-aws-access-key-id }}
@@ -152,9 +158,15 @@ jobs:
       - deploy-dev
       - deploy-prod
     runs-on: ubuntu-latest
-    if: failure()
+    if: always()
     steps:
       - name: slack us for dev
         run: |
           echo "slack us"
           echo '${{ toJSON(job) }}'
+      - name: fail if dev deploy failed
+        if: ${{ needs.deploy-dev.result != 'success' }}
+        run: exit 1
+      - name: fail if prod deploy failed
+        if: ${{ needs.deploy-prod.result != 'success' }}
+        run: exit 1
