@@ -17,24 +17,6 @@ on:
         required: true
 
     inputs:
-      download-artifact:
-        required: false
-        type: string
-      download-artifact-path:
-        default: build
-        required: false
-        type: string
-
-      pre-build:
-        required: false
-        type: boolean
-        default: false
-
-      do-integration-test:
-        required: false
-        type: boolean
-        default: false
-
       working-directory:
         required: false
         type: string
@@ -44,6 +26,11 @@ on:
         required: false
         type: string
         default: .
+
+      do-integration-test:
+        required: false
+        type: boolean
+        default: false
 
       integration-test-working-directory:
         required: false
