@@ -35,7 +35,7 @@ runs:
         aws-region: ${{ inputs.aws-region }}
     - name: CDK bootstrap
       working-directory: ${{ inputs.working-directory }}
-      run: node_modules/.bin/cdk bootstrap
+      run: npm run cdk -- bootstrap
       shell: bash
     - name: CDK deploy
       working-directory: ${{ inputs.working-directory }}
