@@ -40,7 +40,8 @@ runs:
     - name: CDK deploy
       working-directory: ${{ inputs.working-directory }}
       run: >
-        npm run cdk deploy --require-approval=never -c branch="${{ inputs.environment-name }}"
+        npm run cdk -- 
+        deploy --require-approval=never -c branch="${{ inputs.environment-name }}"
         -c stack_name="${{ inputs.environment-name }}-${{ github.event.repository.id }}"
         -c stack_description="${{ github.event.repository.html_url }}/tree/${{ inputs.environment-name }}"
         --all
