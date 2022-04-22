@@ -110,9 +110,6 @@ jobs:
       - name: fail if conditional job failed
         if: ${{ needs.test-infra.result == 'failure' || needs.test.result == 'failure' }}
         run: exit 1
-      - uses: actions/download-artifact@v3
-        with:
-          name: ${{ inputs.overlay-artifact-dev }}
       - uses: clear-treasury/github-actions/actions/cdk-deploy@deploy-rework
         with:
           aws-access-key-id: ${{ secrets.nonprod-aws-access-key-id }}
@@ -120,6 +117,7 @@ jobs:
           aws-region: ${{ secrets.nonprod-aws-region }}
           working-directory: ${{ inputs.infra-working-directory }}
           environment-name: dev
+          overlay-artifact: ${{ inputs.overlay-artifact-dev }}
 
   integration-test:
     name: integration test
@@ -162,6 +160,7 @@ jobs:
           aws-region: ${{ secrets.prod-aws-region }}
           working-directory: ${{ inputs.infra-working-directory }}
           environment-name: main
+          overlay-artifact: ${{ inputs.overlay-artifact-dev }}
 
   notify-failure:
     needs:
