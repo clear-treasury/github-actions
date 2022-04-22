@@ -37,6 +37,14 @@ on:
         type: string
         default: .
 
+      overlay-artifact-dev:
+        required: false
+        type: string
+
+      overlay-artifact-prod:
+        required: false
+        type: string
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -47,6 +55,9 @@ jobs:
         with:
           node-version: 16
           cache: npm
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.overlay-artifact-dev }}
       - name: install dependancies
         working-directory: ${{ inputs.working-directory }}
         run: npm ci
@@ -62,6 +73,9 @@ jobs:
         with:
           node-version: 16
           cache: npm
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.overlay-artifact-dev }}
       - name: install dependancies
         working-directory: ${{ inputs.infra-working-directory }}
         run: npm ci
@@ -96,6 +110,9 @@ jobs:
       - name: fail if conditional job failed
         if: ${{ needs.test-infra.result == 'failure' || needs.test.result == 'failure' }}
         run: exit 1
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.overlay-artifact-dev }}
       - uses: clear-treasury/github-actions/actions/cdk-deploy@deploy-rework
         with:
           aws-access-key-id: ${{ secrets.nonprod-aws-access-key-id }}
@@ -116,6 +133,9 @@ jobs:
         with:
           node-version: 16
           cache: npm
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.overlay-artifact-dev }}
       - name: install dependancies
         working-directory: ${{ inputs.integration-test-working-directory }}
         run: npm ci
@@ -132,6 +152,9 @@ jobs:
       - name: fail if conditional job failed
         if: ${{ needs.integration-test.result == 'failure' || needs.test.result == 'failure' }}
         run: exit 1
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.overlay-artifact-prod }}
       - uses: clear-treasury/github-actions/actions/cdk-deploy@deploy-rework
         with:
           aws-access-key-id: ${{ secrets.prod-aws-access-key-id }}

@@ -12,9 +12,8 @@ inputs:
   working-directory:
     required: false
     default: ./
-branding:
-  icon: upload-cloud
-  color: orange
+  overlay-artifact:
+    required: false
 runs:
   using: composite
   steps:
@@ -23,6 +22,9 @@ runs:
       with:
         node-version: 16
         cache: npm
+    - uses: actions/download-artifact@v3
+      with:
+        name: ${{ inputs.overlay-artifact }}
     - name: install dependancies
       working-directory: ${{ inputs.working-directory }}
       run: npm ci
