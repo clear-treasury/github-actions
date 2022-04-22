@@ -16,12 +16,12 @@ inputs:
     default: ./
   overlay-artifact:
     required: false
+defaults:
+  run:
+    working-directory: ${{ inputs.working-directory }}
+    shell: bash
 runs:
   using: composite
-  defaults:
-    run:
-      working-directory: ${{ inputs.working-directory }}
-      shell: bash
 
   steps:
     - uses: actions/checkout@v3
