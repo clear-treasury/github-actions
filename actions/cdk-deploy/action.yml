@@ -1,6 +1,8 @@
 name: CDK deploy
 description: deploy some cdk
 inputs:
+  debug:
+    required: false
   environment-name:
     required: true
   aws-access-key-id:
@@ -16,6 +18,11 @@ inputs:
     required: false
 runs:
   using: composite
+  defaults:
+    run:
+      working-directory: ${{ inputs.working-directory }}
+      shell: bash
+
   steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-node@v3
@@ -26,25 +33,21 @@ runs:
       with:
         name: ${{ inputs.overlay-artifact }}
     - name: install dependancies
-      working-directory: ${{ inputs.working-directory }}
       run: npm ci
-      shell: bash
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ inputs.aws-access-key-id }}
         aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
         aws-region: ${{ inputs.aws-region }}
+    - name: debug
+      run: ls -la
     - name: CDK bootstrap
-      working-directory: ${{ inputs.working-directory }}
       run: npm run cdk -- bootstrap
-      shell: bash
     - name: CDK deploy
-      working-directory: ${{ inputs.working-directory }}
       run: >
         npm run cdk -- 
         deploy --require-approval=never -c branch="${{ inputs.environment-name }}"
         -c stack_name="${{ inputs.environment-name }}-${{ github.event.repository.id }}"
         -c stack_description="${{ github.event.repository.html_url }}/tree/${{ inputs.environment-name }}"
         --all
-      shell: bash

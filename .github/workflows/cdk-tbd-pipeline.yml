@@ -17,6 +17,11 @@ on:
         required: true
 
     inputs:
+      debug:
+        required: false
+        type: boolean
+        default: false
+
       working-directory:
         required: false
         type: string
@@ -61,6 +66,9 @@ jobs:
       - name: install dependancies
         working-directory: ${{ inputs.working-directory }}
         run: npm ci
+      - name: debug
+        if: inputs.debug
+        run: ls -la
       - name: test
         working-directory: ${{ inputs.working-directory }}
         run: npm run test
@@ -79,6 +87,9 @@ jobs:
       - name: install dependancies
         working-directory: ${{ inputs.infra-working-directory }}
         run: npm ci
+      - name: debug
+        if: inputs.debug
+        run: ls -la
       - name: test
         working-directory: ${{ inputs.infra-working-directory }}
         run: npm run test
@@ -118,6 +129,7 @@ jobs:
           working-directory: ${{ inputs.infra-working-directory }}
           environment-name: dev
           overlay-artifact: ${{ inputs.overlay-artifact-dev }}
+          debug: ${{ inputs.debug }}
 
   integration-test:
     name: integration test
@@ -137,6 +149,9 @@ jobs:
       - name: install dependancies
         working-directory: ${{ inputs.integration-test-working-directory }}
         run: npm ci
+      - name: debug
+        if: inputs.debug
+        run: ls -la
       - name: test
         working-directory: ${{ inputs.integration-test-working-directory }}
         run: npm run integration-test
@@ -161,6 +176,7 @@ jobs:
           working-directory: ${{ inputs.infra-working-directory }}
           environment-name: main
           overlay-artifact: ${{ inputs.overlay-artifact-dev }}
+          debug: ${{ inputs.debug }}
 
   notify-failure:
     needs:
