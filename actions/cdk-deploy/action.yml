@@ -16,10 +16,6 @@ inputs:
     default: ./
   overlay-artifact:
     required: false
-defaults:
-  run:
-    working-directory: ${{ inputs.working-directory }}
-    shell: bash
 runs:
   using: composite
 
@@ -34,6 +30,8 @@ runs:
         name: ${{ inputs.overlay-artifact }}
     - name: install dependancies
       run: npm ci
+      working-directory: ${{ inputs.working-directory }}
+      shell: bash
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -42,8 +40,12 @@ runs:
         aws-region: ${{ inputs.aws-region }}
     - name: debug
       run: ls -la
+      working-directory: ${{ inputs.working-directory }}
+      shell: bash
     - name: CDK bootstrap
       run: npm run cdk -- bootstrap
+      working-directory: ${{ inputs.working-directory }}
+      shell: bash
     - name: CDK deploy
       run: >
         npm run cdk -- 
@@ -51,3 +53,5 @@ runs:
         -c stack_name="${{ inputs.environment-name }}-${{ github.event.repository.id }}"
         -c stack_description="${{ github.event.repository.html_url }}/tree/${{ inputs.environment-name }}"
         --all
+      working-directory: ${{ inputs.working-directory }}
+      shell: bash
