@@ -122,7 +122,7 @@ jobs:
       - name: pull overlay
         uses: actions/cache@v3
         with:
-          path: node_modules
+          path: .
           key: ${{ inputs.overlay-cache-key-dev }}
       - uses: actions/download-artifact@v3
         with:
@@ -151,7 +151,7 @@ jobs:
       - name: pull overlay
         uses: actions/cache@v3
         with:
-          path: node_modules
+          path: .
           key: ${{ inputs.overlay-cache-key-dev }}
       - uses: actions/download-artifact@v3
         with:
@@ -225,7 +225,7 @@ jobs:
       - name: pull overlay
         uses: actions/cache@v3
         with:
-          path: node_modules
+          path: .
           key: ${{ inputs.overlay-cache-key-dev }}
       - uses: actions/download-artifact@v3
         with:
