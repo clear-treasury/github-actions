@@ -59,47 +59,15 @@ on:
         type: string
 
 jobs:
-  debug:
+  log-inputs:
     runs-on: ubuntu-latest
     if: inputs.debug
     steps:
-      - name: debug
+      - name: inputs 
         run: |
           cat << EOF
           ${{ toJSON(inputs) }}
           EOF
-
-  setup-npm:
-    runs-on: ubuntu-latest
-    if: inputs.working-directory != inputs.infra-working-directory
-    steps:
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with:
-          # AWS lambdas are still on Node 14 https://github.com/aws/aws-lambda-base-images/issues/14
-          node-version: "14"
-          # The Design system is on github's package registry
-          cache: "npm"
-
-      - name: Cache app dependencies
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: cdk-deploy-node_modules-${{ hashFiles('package-lock.json') }}
-          restore-keys: cdk-deploy-node_modules-
-
-      # Skip post-install scripts here, as a malicious script could steal NODE_AUTH_TOKEN.
-      - name: Install app dependencies (without scripts)
-        # Use npm 7 for auto peer-dependency resolution
-        run: npm i -g npm@7 && npm ci --ignore-scripts
-        env:
-          # See https://github.com/actions/setup-node/blob/main/docs/advanced-usage.md#use-private-packages
-          NODE_AUTH_TOKEN: ${{ secrets.GPR_READ_TOKEN }}
-
-      # `npm rebuild` will run all those post-install scripts for us.
-      - name: Run post-install scripts
-        run: npm rebuild && npm run prepare --if-present
-
 
   test:
     runs-on: ubuntu-latest
