@@ -60,6 +60,7 @@ on:
 
 jobs:
   debug:
+    runs-on: ubuntu-latest
     if: inputs.debug
     steps:
       - name: debug
