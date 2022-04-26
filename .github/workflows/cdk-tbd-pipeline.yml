@@ -50,7 +50,48 @@ on:
         required: false
         type: string
 
+      overlay-cache-key-dev:
+        required: false
+        type: string
+
+      overlay-cache-key-prod:
+        required: false
+        type: string
+
 jobs:
+
+  setup-npm:
+    runs-on: ubuntu-latest
+    if: inputs.working-directory != inputs.infra-working-directory
+    steps:
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          # AWS lambdas are still on Node 14 https://github.com/aws/aws-lambda-base-images/issues/14
+          node-version: "14"
+          # The Design system is on github's package registry
+          cache: "npm"
+
+      - name: Cache app dependencies
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: cdk-deploy-node_modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: cdk-deploy-node_modules-
+
+      # Skip post-install scripts here, as a malicious script could steal NODE_AUTH_TOKEN.
+      - name: Install app dependencies (without scripts)
+        # Use npm 7 for auto peer-dependency resolution
+        run: npm i -g npm@7 && npm ci --ignore-scripts
+        env:
+          # See https://github.com/actions/setup-node/blob/main/docs/advanced-usage.md#use-private-packages
+          NODE_AUTH_TOKEN: ${{ secrets.GPR_READ_TOKEN }}
+
+      # `npm rebuild` will run all those post-install scripts for us.
+      - name: Run post-install scripts
+        run: npm rebuild && npm run prepare --if-present
+
+
   test:
     runs-on: ubuntu-latest
     if: inputs.working-directory != inputs.infra-working-directory
@@ -63,6 +104,17 @@ jobs:
           node-version: 14
           cache: npm
           cache-dependency-path: "${{ inputs.working-directory }}/package-lock.json"
+      - name: Cache app dependencies
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: cdk-deploy-node_modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: cdk-deploy-node_modules-
+      - name: pull overlay
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ inputs.overlay-cache-key-dev }}
       - uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.overlay-artifact-dev }}
@@ -87,6 +139,11 @@ jobs:
           node-version: 14
           cache: npm
           cache-dependency-path: "${{ inputs.infra-working-directory }}/package-lock.json"
+      - name: pull overlay
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ inputs.overlay-cache-key-dev }}
       - uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.overlay-artifact-dev }}
@@ -155,6 +212,11 @@ jobs:
           node-version: 14
           cache: npm
           cache-dependency-path: "${{ inputs.integration-test-working-directory }}/package-lock.json"
+      - name: pull overlay
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ inputs.overlay-cache-key-dev }}
       - uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.overlay-artifact-dev }}
@@ -177,9 +239,6 @@ jobs:
       - name: fail if conditional job failed
         if: ${{ needs.integration-test.result == 'failure' || needs.test.result == 'failure' }}
         run: exit 1
-      - uses: actions/download-artifact@v3
-        with:
-          name: ${{ inputs.overlay-artifact-prod }}
       - uses: clear-treasury/github-actions/actions/cdk-deploy@deploy-rework
         with:
           aws-access-key-id: ${{ secrets.prod-aws-access-key-id }}
@@ -188,6 +247,7 @@ jobs:
           working-directory: ${{ inputs.infra-working-directory }}
           environment-name: main
           overlay-artifact: ${{ inputs.overlay-artifact-dev }}
+          overlay-cache-key: ${{ inputs.overlay-cache-key-dev }}
           debug: ${{ inputs.debug }}
 
   notify-failure:

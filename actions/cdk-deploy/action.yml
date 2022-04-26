@@ -16,6 +16,8 @@ inputs:
     default: ./
   overlay-artifact:
     required: false
+  overlay-cache-key:
+    required: false
 runs:
   using: composite
 
@@ -28,6 +30,10 @@ runs:
         node-version: 14
         cache: npm
         cache-dependency-path: "${{ inputs.working-directory }}/package-lock.json"
+    - name: pull overlay
+      uses: actions/cache@v3
+      with:
+        key: ${{ inputs.overlay-cache-key }}
     - uses: actions/download-artifact@v3
       with:
         name: ${{ inputs.overlay-artifact }}
