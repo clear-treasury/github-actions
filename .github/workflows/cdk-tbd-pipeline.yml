@@ -59,6 +59,11 @@ on:
         type: string
 
 jobs:
+  debug:
+    if: inputs.debug
+    steps:
+      - name: debug
+        run: echo ${{ toJSON(inputs) }}
 
   setup-npm:
     runs-on: ubuntu-latest
@@ -195,6 +200,7 @@ jobs:
           working-directory: ${{ inputs.infra-working-directory }}
           environment-name: dev
           overlay-artifact: ${{ inputs.overlay-artifact-dev }}
+          overlay-cache-key: ${{ inputs.overlay-cache-key-dev }}
           debug: ${{ inputs.debug }}
 
   integration-test:
@@ -246,8 +252,8 @@ jobs:
           aws-region: ${{ secrets.prod-aws-region }}
           working-directory: ${{ inputs.infra-working-directory }}
           environment-name: main
-          overlay-artifact: ${{ inputs.overlay-artifact-dev }}
-          overlay-cache-key: ${{ inputs.overlay-cache-key-dev }}
+          overlay-artifact: ${{ inputs.overlay-artifact-prod }}
+          overlay-cache-key: ${{ inputs.overlay-cache-key-prod }}
           debug: ${{ inputs.debug }}
 
   notify-failure:
