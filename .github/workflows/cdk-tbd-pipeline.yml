@@ -64,7 +64,10 @@ jobs:
     if: inputs.debug
     steps:
       - name: debug
-        run: echo ${{ toJSON(inputs) }}
+        run: |
+          cat << EOF
+          ${{ toJSON(inputs) }}
+          EOF
 
   setup-npm:
     runs-on: ubuntu-latest
