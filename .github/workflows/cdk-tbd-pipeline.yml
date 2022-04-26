@@ -68,6 +68,13 @@ jobs:
           cat << EOF
           ${{ toJSON(inputs) }}
           EOF
+      - name: pull overlay
+        uses: actions/cache@v3
+        with:
+          path: .
+          key: ${{ inputs.overlay-cache-key-dev }}
+      - name: list overlay
+        run: ls -la
 
   test:
     runs-on: ubuntu-latest
