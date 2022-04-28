@@ -112,7 +112,7 @@ jobs:
           key: cdk-deploy-node_modules-${{ hashFiles(format('{0}/package-lock.json', inputs.infra-working-directory)) }}
           restore-keys: cdk-deploy-infra-node_modules-
       - working-directory: ${{ inputs.infra-working-directory }}
-        run: npm ci
+        run: npm i -g npm@7 && npm ci
 
 
   log-inputs:
@@ -162,7 +162,7 @@ jobs:
           name: ${{ inputs.overlay-artifact-dev }}
       - name: install dependancies
         working-directory: ${{ inputs.working-directory }}
-        run: npm ci
+        run: npm i -g npm@7 && npm ci
       - name: debug
         if: inputs.debug
         run: ls -la
@@ -199,7 +199,7 @@ jobs:
           name: ${{ inputs.overlay-artifact-dev }}
       - name: install dependancies
         working-directory: ${{ inputs.infra-working-directory }}
-        run: npm ci
+        run: npm i -g npm@7 && npm ci
       - name: debug
         if: inputs.debug
         run: ls -la
@@ -221,7 +221,7 @@ jobs:
   #         cache-dependency-path: "${{ inputs.working-directory }}/package-lock.json"
   #     - name: install dependancies
   #       working-directory: ${{ inputs.working-directory }}
-  #       run: npm ci
+  #       run: npm i -g npm@7 && npm ci
   #     - name: test
   #       working-directory: ${{ inputs.working-directory }}
   #       run: npm run build
@@ -262,7 +262,7 @@ jobs:
         with:
           name: ${{ inputs.overlay-artifact-dev }}
       - name: install dependancies
-        run: npm ci
+        run: npm i -g npm@7 && npm ci
         working-directory: ${{ inputs.working-directory }}
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -311,7 +311,7 @@ jobs:
           name: ${{ inputs.overlay-artifact-dev }}
       - name: install dependancies
         working-directory: ${{ inputs.integration-test-working-directory }}
-        run: npm ci
+        run: npm i -g npm@7 && npm ci
       - name: debug
         if: inputs.debug
         run: ls -la
@@ -353,7 +353,7 @@ jobs:
         with:
           name: ${{ inputs.overlay-artifact-prod }}
       - name: install dependancies
-        run: npm ci
+        run: npm i -g npm@7 && npm ci
         working-directory: ${{ inputs.working-directory }}
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
