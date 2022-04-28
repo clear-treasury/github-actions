@@ -248,7 +248,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.nonprod-aws-secret-access-key }}
           aws-region: ${{ secrets.nonprod-aws-region }}
       - name: debug
-        if: ${{ inputs.debug == 'true' }}
+        # if: ${{ inputs.debug == 'true' }}
         run: ls -la
         working-directory: ${{ inputs.infra-working-directory }}
       - name: CDK bootstrap
