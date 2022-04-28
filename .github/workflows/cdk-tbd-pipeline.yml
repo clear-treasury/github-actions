@@ -272,7 +272,8 @@ jobs:
         with:
           aws-access-key-id: ${{ inputs.nonprod-aws-access-key-id }}
           aws-secret-access-key: ${{ inputs.nonprod-aws-secret-access-key }}
-          aws-region: ${{ inputs.nonprod-aws-region }}
+          aws-region: "eu-west-2"
+          # aws-region: ${{ inputs.nonprod-aws-region }}
       - name: debug
         if: ${{ inputs.debug == 'true' }}
         run: ls -la
