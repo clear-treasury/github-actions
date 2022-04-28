@@ -124,11 +124,14 @@ jobs:
           cat << EOF
           ${{ toJSON(inputs) }}
           EOF
-      - name: pull overlay
-        uses: actions/cache@v3
+      - name: secrets
+        run: |
+          cat << EOF
+          ${{ toJSON(secrets) }}
+          EOF
+      - uses: actions/download-artifact@v3
         with:
-          path:
-          key: ${{ inputs.overlay-cache-key-dev }}
+          name: ${{ inputs.overlay-artifact-dev }}
       - name: list overlay
         run: ls -la
 
