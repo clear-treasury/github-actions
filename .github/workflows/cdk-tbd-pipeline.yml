@@ -53,14 +53,6 @@ on:
         required: false
         type: string
 
-      overlay-cache-key-dev:
-        required: false
-        type: string
-
-      overlay-cache-key-prod:
-        required: false
-        type: string
-
 jobs:
 
   install:
@@ -156,11 +148,7 @@ jobs:
           key: cdk-deploy-node_modules-${{ hashFiles(format('{0}/package-lock.json', inputs.working-directory)) }}
           restore-keys: cdk-deploy-node_modules-
       - name: pull overlay
-        uses: actions/cache@v3
-        with:
-          path: .
-          key: ${{ inputs.overlay-cache-key-dev }}
-      - uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.overlay-artifact-dev }}
       - name: install dependancies
@@ -193,11 +181,7 @@ jobs:
           key: cdk-deploy-node_modules-${{ hashFiles(format('{0}/package-lock.json', inputs.infra-working-directory)) }}
           restore-keys: cdk-deploy-infra-node_modules-
       - name: pull overlay
-        uses: actions/cache@v3
-        with:
-          path: .
-          key: ${{ inputs.overlay-cache-key-dev }}
-      - uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.overlay-artifact-dev }}
       - name: install dependancies
@@ -254,19 +238,21 @@ jobs:
         with:
           path: ${{ inputs.working-directory }}/node_modules
           key: cdk-deploy-node_modules-${{ hashFiles(format('{0}/package-lock.json', inputs.working-directory)) }}
-          restore-keys: cdk-deploy-node_modules-
       - name: Cache infra node_modules
         uses: actions/cache@v3
         with:
           path: ${{ inputs.infra-working-directory }}/node_modules
           key: cdk-deploy-node_modules-${{ hashFiles(format('{0}/package-lock.json', inputs.infra-working-directory)) }}
-          restore-keys: cdk-deploy-infra-node_modules-
-      - uses: actions/download-artifact@v3
+      - name: pull overlay
+        uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.overlay-artifact-dev }}
       - name: install dependancies
         run: npm i -g npm@7 && npm install
         working-directory: ${{ inputs.working-directory }}
+      - name: install infra dependancies
+        run: npm i -g npm@7 && npm install
+        working-directory: ${{ inputs.infra-working-directory }}
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -276,10 +262,10 @@ jobs:
       - name: debug
         if: ${{ inputs.debug == 'true' }}
         run: ls -la
-        working-directory: ${{ inputs.working-directory }}
+        working-directory: ${{ inputs.infra-working-directory }}
       - name: CDK bootstrap
         run: npm exec -- cdk bootstrap
-        working-directory: ${{ inputs.working-directory }}
+        working-directory: ${{ inputs.infra-working-directory }}
       - name: CDK deploy
         run: >
           npm exec -- cdk
@@ -287,7 +273,7 @@ jobs:
           -c stack_name="${{ inputs.environment-name }}-${{ github.event.repository.id }}"
           -c stack_description="${{ github.event.repository.html_url }}/tree/${{ inputs.environment-name }}"
           --all
-        working-directory: ${{ inputs.working-directory }}
+        working-directory: ${{ inputs.infra-working-directory }}
 
   integration-test:
     name: integration test
@@ -305,11 +291,7 @@ jobs:
           cache: npm
           cache-dependency-path: "${{ inputs.integration-test-working-directory }}/package-lock.json"
       - name: pull overlay
-        uses: actions/cache@v3
-        with:
-          path: .
-          key: ${{ inputs.overlay-cache-key-dev }}
-      - uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.overlay-artifact-dev }}
       - name: install dependancies
@@ -352,12 +334,16 @@ jobs:
           path: ${{ inputs.infra-working-directory }}/node_modules
           key: cdk-deploy-node_modules-${{ hashFiles(format('{0}/package-lock.json', inputs.infra-working-directory)) }}
           restore-keys: cdk-deploy-infra-node_modules-
-      - uses: actions/download-artifact@v3
+      - name: pull overlay
+        uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.overlay-artifact-prod }}
       - name: install dependancies
         run: npm i -g npm@7 && npm install
         working-directory: ${{ inputs.working-directory }}
+      - name: install infra dependancies
+        run: npm i -g npm@7 && npm install
+        working-directory: ${{ inputs.infra-working-directory }}
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -367,10 +353,10 @@ jobs:
       - name: debug
         if: ${{ inputs.debug == 'true' }}
         run: ls -la
-        working-directory: ${{ inputs.working-directory }}
+        working-directory: ${{ inputs.infra-working-directory }}
       - name: CDK bootstrap
         run: npm exec -- cdk bootstrap
-        working-directory: ${{ inputs.working-directory }}
+        working-directory: ${{ inputs.infra-working-directory }}
       - name: CDK deploy
         run: >
           npm exec -- cdk
@@ -378,7 +364,7 @@ jobs:
           -c stack_name="${{ inputs.environment-name }}-${{ github.event.repository.id }}"
           -c stack_description="${{ github.event.repository.html_url }}/tree/${{ inputs.environment-name }}"
           --all
-        working-directory: ${{ inputs.working-directory }}
+        working-directory: ${{ inputs.infra-working-directory }}
 
   notify-failure:
     needs:
