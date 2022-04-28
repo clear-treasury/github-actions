@@ -278,11 +278,11 @@ jobs:
         run: ls -la
         working-directory: ${{ inputs.working-directory }}
       - name: CDK bootstrap
-        run: npm run cdk -- bootstrap
+        run: npm exec -- cdk bootstrap
         working-directory: ${{ inputs.working-directory }}
       - name: CDK deploy
         run: >
-          npm run cdk --
+          npm exec -- cdk
           deploy --require-approval=never -c branch="${{ inputs.environment-name }}"
           -c stack_name="${{ inputs.environment-name }}-${{ github.event.repository.id }}"
           -c stack_description="${{ github.event.repository.html_url }}/tree/${{ inputs.environment-name }}"
@@ -369,11 +369,11 @@ jobs:
         run: ls -la
         working-directory: ${{ inputs.working-directory }}
       - name: CDK bootstrap
-        run: npm run cdk -- bootstrap
+        run: npm exec -- cdk bootstrap
         working-directory: ${{ inputs.working-directory }}
       - name: CDK deploy
         run: >
-          npm run cdk --
+          npm exec -- cdk
           deploy --require-approval=never -c branch="${{ inputs.environment-name }}"
           -c stack_name="${{ inputs.environment-name }}-${{ github.event.repository.id }}"
           -c stack_description="${{ github.event.repository.html_url }}/tree/${{ inputs.environment-name }}"
