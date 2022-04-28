@@ -96,7 +96,7 @@ jobs:
           # node-version: 16
           node-version: 14
           cache: npm
-          cache-dependency-path: "${{ inputs.working-directory }}/package-lock.json"
+          cache-dependency-path: "${{ inputs.infra-working-directory }}/package-lock.json"
       - name: Cache infra node_modules
         uses: actions/cache@v3
         with:
@@ -230,7 +230,7 @@ jobs:
           # node-version: 16
           node-version: 14
           cache: npm
-          cache-dependency-path: "${{ inputs.working-directory }}/package-lock.json"
+          cache-dependency-path: "${{ inputs.infra-working-directory }}/package-lock.json"
       - name: Cache node_modules
         uses: actions/cache@v3
         with:
@@ -319,7 +319,7 @@ jobs:
           # node-version: 16
           node-version: 14
           cache: npm
-          cache-dependency-path: "${{ inputs.working-directory }}/package-lock.json"
+          cache-dependency-path: "${{ inputs.infra-working-directory }}/package-lock.json"
       - name: Cache node_modules
         uses: actions/cache@v3
         with:
@@ -348,7 +348,9 @@ jobs:
           aws-region: ${{ secrets.prod-aws-region }}
       - name: debug
         if: ${{ inputs.debug == 'true' }}
-        run: ls -la
+        run: |
+            ls -la
+            npm exec -- cdk --version
         working-directory: ${{ inputs.infra-working-directory }}
       - name: CDK bootstrap
         run: npm exec -- cdk bootstrap
