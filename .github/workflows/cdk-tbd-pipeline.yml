@@ -267,9 +267,9 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ inputs.aws-access-key-id }}
-          aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
-          aws-region: ${{ inputs.aws-region }}
+          aws-access-key-id: ${{ inputs.nonprod-aws-access-key-id }}
+          aws-secret-access-key: ${{ inputs.nonprod-aws-secret-access-key }}
+          aws-region: ${{ inputs.nonprod-aws-region }}
       - name: debug
         if: ${{ inputs.debug == 'true' }}
         run: ls -la
@@ -358,9 +358,9 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ inputs.aws-access-key-id }}
-          aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
-          aws-region: ${{ inputs.aws-region }}
+          aws-access-key-id: ${{ inputs.prod-aws-access-key-id }}
+          aws-secret-access-key: ${{ inputs.prod-aws-secret-access-key }}
+          aws-region: ${{ inputs.prod-aws-region }}
       - name: debug
         if: ${{ inputs.debug == 'true' }}
         run: ls -la
