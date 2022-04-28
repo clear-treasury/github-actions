@@ -134,6 +134,8 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    needs:
+      - install
     if: inputs.working-directory != inputs.infra-working-directory
     steps:
       - uses: actions/checkout@v3
@@ -170,6 +172,8 @@ jobs:
 
   test-infra:
     runs-on: ubuntu-latest
+    needs:
+      - install-infra
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -227,11 +231,12 @@ jobs:
     needs:
       - test
       - test-infra
+      - install-infra
       # - build
     if: always()
     steps:
       - name: fail if conditional job failed
-        if: ${{ needs.test-infra.result == 'failure' || needs.test.result == 'failure' }}
+        if: ${{ needs.test-infra.result == 'failure' || needs.test.result == 'failure' || needs.install-infra.result == 'failure' }}
         run: exit 1
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -316,12 +321,13 @@ jobs:
 
   deploy-prod:
     needs:
+      - deploy-dev
       - integration-test
     runs-on: ubuntu-latest
     if: always()
     steps:
       - name: fail if conditional job failed
-        if: ${{ needs.integration-test.result == 'failure' || needs.test.result == 'failure' }}
+        if: ${{ needs.integration-test.result == 'failure' || needs.deploy-dev.result == 'failure' }}
         run: exit 1
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
