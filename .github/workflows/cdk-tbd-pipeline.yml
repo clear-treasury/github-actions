@@ -105,7 +105,7 @@ jobs:
           node-version: 14
           cache: npm
           cache-dependency-path: "${{ inputs.working-directory }}/package-lock.json"
-      - name: Cache node_modules
+      - name: Cache infra node_modules
         uses: actions/cache@v3
         with:
           path: ${{ inputs.infra-working-directory }}/node_modules
@@ -148,7 +148,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ inputs.working-directory }}/node_modules
-          key: cdk-deploy-node_modules-${{ hashFiles(inputs.working-directory + '/package-lock.json') }}
+          key: cdk-deploy-node_modules-${{ hashFiles(format('{0}/package-lock.json',  inputs.working-directory)) }}
           restore-keys: cdk-deploy-node_modules-
       - name: pull overlay
         uses: actions/cache@v3
@@ -179,11 +179,11 @@ jobs:
           node-version: 14
           cache: npm
           cache-dependency-path: "${{ inputs.infra-working-directory }}/package-lock.json"
-      - name: Cache node_modules
+      - name: Cache infra node_modules
         uses: actions/cache@v3
         with:
           path: ${{ inputs.infra-working-directory }}/node_modules
-          key: cdk-deploy-infra-node_modules-${{ hashFiles(inputs.working-directory + '/package-lock.json') }}
+          key: cdk-deploy-node_modules-${{ hashFiles(format('{0}/package-lock.json',  inputs.infra-working-directory)) }}
           restore-keys: cdk-deploy-infra-node_modules-
       - name: pull overlay
         uses: actions/cache@v3
@@ -244,8 +244,14 @@ jobs:
       - name: Cache node_modules
         uses: actions/cache@v3
         with:
+          path: ${{ inputs.working-directory }}/node_modules
+          key: cdk-deploy-node_modules-${{ hashFiles(format('{0}/package-lock.json',  inputs.working-directory)) }}
+          restore-keys: cdk-deploy-node_modules-
+      - name: Cache infra node_modules
+        uses: actions/cache@v3
+        with:
           path: ${{ inputs.infra-working-directory }}/node_modules
-          key: cdk-deploy-infra-node_modules-${{ hashFiles(inputs.working-directory + '/package-lock.json') }}
+          key: cdk-deploy-node_modules-${{ hashFiles(format('{0}/package-lock.json',  inputs.infra-working-directory)) }}
           restore-keys: cdk-deploy-infra-node_modules-
       - uses: actions/download-artifact@v3
         with:
@@ -328,8 +334,14 @@ jobs:
       - name: Cache node_modules
         uses: actions/cache@v3
         with:
+          path: ${{ inputs.working-directory }}/node_modules
+          key: cdk-deploy-node_modules-${{ hashFiles(format('{0}/package-lock.json',  inputs.working-directory)) }}
+          restore-keys: cdk-deploy-node_modules-
+      - name: Cache infra node_modules
+        uses: actions/cache@v3
+        with:
           path: ${{ inputs.infra-working-directory }}/node_modules
-          key: cdk-deploy-infra-node_modules-${{ hashFiles(inputs.working-directory + '/package-lock.json') }}
+          key: cdk-deploy-node_modules-${{ hashFiles(format('{0}/package-lock.json',  inputs.infra-working-directory)) }}
           restore-keys: cdk-deploy-infra-node_modules-
       - uses: actions/download-artifact@v3
         with:
