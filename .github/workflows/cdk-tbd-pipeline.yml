@@ -260,9 +260,9 @@ jobs:
       - name: CDK deploy
         run: >
           npm exec -- cdk
-          deploy --require-approval=never -c branch="${{ inputs.environment-name }}"
-          -c stack_name="${{ inputs.environment-name }}-${{ github.event.repository.id }}"
-          -c stack_description="${{ github.event.repository.html_url }}/tree/${{ inputs.environment-name }}"
+          deploy --require-approval=never -c branch="dev"
+          -c stack_name="dev-${{ github.event.repository.id }}"
+          -c stack_description="${{ github.event.repository.html_url }}/tree/dev"
           --all
         working-directory: ${{ inputs.infra-working-directory }}
 
@@ -351,9 +351,9 @@ jobs:
       - name: CDK deploy
         run: >
           npm exec -- cdk
-          deploy --require-approval=never -c branch="${{ inputs.environment-name }}"
-          -c stack_name="${{ inputs.environment-name }}-${{ github.event.repository.id }}"
-          -c stack_description="${{ github.event.repository.html_url }}/tree/${{ inputs.environment-name }}"
+          deploy --require-approval=never -c branch="main"
+          -c stack_name="main-${{ github.event.repository.id }}"
+          -c stack_description="${{ github.event.repository.html_url }}/tree/main"
           --all
         working-directory: ${{ inputs.infra-working-directory }}
 
