@@ -249,7 +249,10 @@ jobs:
           aws-region: ${{ secrets.nonprod-aws-region }}
       - name: debug
         # if: ${{ inputs.debug == 'true' }}
-        run: ls -la
+        run: |
+          ls -la
+          ./node_modules/.bin/cdk --version
+          npm exec -- cdk --version
         working-directory: ${{ inputs.infra-working-directory }}
       - name: CDK bootstrap
         run: npm exec -- cdk bootstrap
