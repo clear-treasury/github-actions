@@ -8,7 +8,7 @@ on:
         default: "./"
         required: false
         type: string
-        
+
     outputs:
       cache-path:
         description: "The path to cached dependencies"
@@ -18,7 +18,7 @@ on:
         value: ${{ jobs.install.outputs.cache-key }}
       cache-restore:
         description: "The restore key for cached dependencies"
-        value: ${{ jobs.install.outputs.cache-restore }}        
+        value: ${{ jobs.install.outputs.cache-restore }}
 
 jobs:
   install:
@@ -44,8 +44,6 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v3
         with:
-          # AWS lambdas are still on Node 14 https://github.com/aws/aws-lambda-base-images/issues/14
-          node-version: "14"
           cache: "npm"
           cache-dependency-path: "${{ env.PATH_PREFIX }}package-lock.json"
           # Our Design System is on github's package registry
@@ -67,8 +65,7 @@ jobs:
 
       # Skip post-install scripts here, as a malicious script could steal NODE_AUTH_TOKEN.
       - name: Install dependencies (without scripts)
-        # Use npm 7 for auto peer-dependency resolution
-        run: npm i -g npm@7 && npm ci --ignore-scripts
+        run: npm ci --ignore-scripts
         env:
           # See https://github.com/actions/setup-node/blob/main/docs/advanced-usage.md#use-private-packages
           NODE_AUTH_TOKEN: ${{ secrets.GPR_READ_TOKEN }}
