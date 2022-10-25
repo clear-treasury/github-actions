@@ -1,4 +1,4 @@
-name: build
+name: Build Actions
 
 on:
   push:
@@ -18,18 +18,18 @@ jobs:
         id: branches
         with:
           script: |
-              const refParts = context.ref.split('/');
-              const shortRef = refParts.slice(2).join('/');
-              core.setOutput('branch', shortRef);
-              core.setOutput('buildBranch', `tmp/build/${shortRef}`);
-              core.setOutput('realBuildBranch', shortRef === 'main' ? 'latest' : `build/${shortRef}`);
+            const refParts = context.ref.split('/');
+            const shortRef = refParts.slice(2).join('/');
+            core.setOutput('branch', shortRef);
+            core.setOutput('buildBranch', `tmp/build/${shortRef}`);
+            core.setOutput('realBuildBranch', shortRef === 'main' ? 'latest' : `build/${shortRef}`);
           result-encoding: string
       - name: checkout
         uses: actions/checkout@v2
       - name: align node version with action runtime
         uses: actions/setup-node@v2
         with:
-          node-version: '12'
+          node-version: "12"
       - name: cache npm
         uses: actions/cache@v2
         with:
@@ -65,13 +65,13 @@ jobs:
           BUILD_COMMIT_SHA: ${{ steps.buildCommit.outputs.sha }}
         with:
           script: |
-              github.repos.createCommitStatus({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  sha: process.env.BUILD_COMMIT_SHA,
-                  context: 'built',
-                  state: 'success',
-              });
+            github.repos.createCommitStatus({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                sha: process.env.BUILD_COMMIT_SHA,
+                context: 'built',
+                state: 'success',
+            });
       - name: push to build branch and delete tmp branch
         env:
           BRANCH: ${{ steps.branches.outputs.branch }}

@@ -1,0 +1,25 @@
+name: Build next.js app
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      PATH_PREFIX: ${{ inputs.working-directory != './' && format('{0}/', inputs.working-directory) || '' }}
+      CACHE_PREFIX: ${{ inputs.working-directory != './' && format('{0}-', inputs.working-directory) || '' }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+
+      - name: Load app dependencies
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: node_modules-
+
+      - name: Build
+        run: npm run build
