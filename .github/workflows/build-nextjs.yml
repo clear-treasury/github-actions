@@ -1,5 +1,8 @@
 name: Build next.js app
 
+on:
+  workflow_call:
+
 jobs:
   build:
     runs-on: ubuntu-latest
