@@ -12,6 +12,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: define branches we're juggling to build
         uses: actions/github-script@v4
@@ -24,12 +25,15 @@ jobs:
             core.setOutput('buildBranch', `tmp/build/${shortRef}`);
             core.setOutput('realBuildBranch', shortRef === 'main' ? 'latest' : `build/${shortRef}`);
           result-encoding: string
+
       - name: checkout
         uses: actions/checkout@v2
+
       - name: align node version with action runtime
         uses: actions/setup-node@v2
         with:
           node-version: "12"
+
       - name: cache npm
         uses: actions/cache@v2
         with:
@@ -37,6 +41,7 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
+
       - name: build all the actions
         run: |
           for package_json in */package.json ; do
@@ -46,6 +51,7 @@ jobs:
             npm i
             cd ${PREV_DIR}
           done
+
       - name: push to tmp branch in preparation for setting commit status
         id: buildCommit
         env:
@@ -59,6 +65,7 @@ jobs:
           test -z "$(git diff-index --name-only HEAD --)" || git commit -q -m "build for $GITHUB_SHA"
           echo "::set-output name=sha::$(git rev-parse HEAD)"
           git push origin "${BRANCH}":"${BUILD_BRANCH}" -f
+
       - name: set commit status
         uses: actions/github-script@v4
         env:
@@ -72,6 +79,7 @@ jobs:
                 context: 'built',
                 state: 'success',
             });
+
       - name: push to build branch and delete tmp branch
         env:
           BRANCH: ${{ steps.branches.outputs.branch }}
