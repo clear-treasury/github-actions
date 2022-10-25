@@ -7,10 +7,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      PATH_PREFIX: ${{ inputs.working-directory != './' && format('{0}/', inputs.working-directory) || '' }}
-      CACHE_PREFIX: ${{ inputs.working-directory != './' && format('{0}-', inputs.working-directory) || '' }}
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -18,11 +14,12 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v3
 
+      # TODO: assumes root directory but might need to accept a working-directory input
       - name: Load app dependencies
         uses: actions/cache@v3
         with:
           path: node_modules
-          key: node_modules-
+          key: ${{ format('node_modules-{0}', hashFiles('package-lock.json')) }}
 
       # see https://nextjs.org/docs/advanced-features/ci-build-caching#github-actions
       - name: Cache nextjs build
