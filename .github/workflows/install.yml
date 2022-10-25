@@ -8,6 +8,11 @@ on:
         default: "./"
         required: false
         type: string
+      legacy-peer-deps:
+        description: "Optional flag to run npm with --legacy-peer-deps. Defaults to false"
+        default: false
+        required: false
+        type: boolean
 
     outputs:
       cache-path:
@@ -65,7 +70,15 @@ jobs:
 
       # Skip post-install scripts here, as a malicious script could steal NODE_AUTH_TOKEN.
       - name: Install dependencies (without scripts)
+        if: inputs.legacy-peer-deps == false
         run: npm ci --ignore-scripts
+        env:
+          # See https://github.com/actions/setup-node/blob/main/docs/advanced-usage.md#use-private-packages
+          NODE_AUTH_TOKEN: ${{ secrets.GPR_READ_TOKEN }}
+
+      - name: Install dependencies (without scripts)
+        if: inputs.legacy-peer-deps == true
+        run: npm ci --ignore-scripts --legacy-peer-deps
         env:
           # See https://github.com/actions/setup-node/blob/main/docs/advanced-usage.md#use-private-packages
           NODE_AUTH_TOKEN: ${{ secrets.GPR_READ_TOKEN }}
