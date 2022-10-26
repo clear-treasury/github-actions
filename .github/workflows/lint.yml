@@ -15,7 +15,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ${{ inputs.working-directory }}
+        working-directory: ${{ inputs.working-directory || github.workspace }}
 
     env:
       PATH_PREFIX: ${{ inputs.working-directory != '' && format('{0}/{1}', github.workspace, inputs.working-directory) || github.workspace }}
