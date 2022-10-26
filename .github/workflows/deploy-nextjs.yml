@@ -32,25 +32,22 @@ jobs:
         uses: actions/cache@v3
         with:
           path: node_modules
-          key: node_modules-${{ hashFiles('../package-lock.json') }}
+          key: node_modules-${{ hashFiles('package-lock.json') }}
 
       - name: Load infra dependencies
         uses: actions/cache@v3
         with:
           path: infra/node_modules
-          key: infra-node_modules-${{ hashFiles('package-lock.json') }}
+          key: infra-node_modules-${{ hashFiles('infra/package-lock.json') }}
 
-      - name: Load nextjs build
+      - name: Load nextjs build dirs
         uses: actions/cache@v3
         with:
-          path: ${{ github.workspace }}/.next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
-
-      - name: Load next.out directory
-        uses: actions/cache@v3
-        with:
-          path: ${{ github.workspace }}/next.out
-          key: ${{ runner.os }}-next.out-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+          path: |
+            ${{ github.workspace }}/.next/cache
+            ${{ github.workspace }}/.next/standalone
+            ${{ github.workspace }}/next.out
+          key: nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
