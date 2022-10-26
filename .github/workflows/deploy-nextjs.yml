@@ -44,10 +44,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            ${{ github.workspace }}/.next/cache
             ${{ github.workspace }}/.next/standalone
             ${{ github.workspace }}/next.out
-          key: nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+          key: nextjs-${{ hashFiles('package-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
