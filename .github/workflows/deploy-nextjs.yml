@@ -1,4 +1,4 @@
-name: Deploy CDK app
+name: Deploy Nextjs app with CDK
 
 on:
   workflow_call:
