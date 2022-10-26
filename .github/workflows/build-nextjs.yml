@@ -17,26 +17,30 @@ jobs:
           node-version: 16
           cache: "npm"
 
-      # TODO: assumes root directory but might need to accept a working-directory input
+      # TODO: assumes the app is in the root directory but might need to accept a working-directory input
       - name: Load app dependencies
         uses: actions/cache@v3
         with:
-          path: node_modules
+          path: ${{ github.workspace}}/node_modules
           key: ${{ format('node_modules-{0}', hashFiles('package-lock.json')) }}
 
       # see https://nextjs.org/docs/advanced-features/ci-build-caching#github-actions
-      - name: Cache nextjs build
+      - name: Cache nextjs build dirs
         uses: actions/cache@v3
         with:
+          # .next/standalone gets generated when deploying with @sledg/nextjs-lambda
           path: |
-            ~/.npm
             ${{ github.workspace }}/.next/cache
             ${{ github.workspace }}/.next/standalone
+            ${{ github.workspace }}/next.out
           # Generate a new cache whenever packages or source files change.
           key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
           # If source files changed but packages didn't, rebuild from a prior cache.
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+          restore-keys: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
 
       - name: Build
-        run: npm run build
+        run: |
+          npm run build
+          if [[ -d node_modules/@sladg/nextjs-lambda ]]; then
+            npx --package @sladg/nextjs-lambda next-utils pack
+          fi
