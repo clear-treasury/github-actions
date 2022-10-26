@@ -51,7 +51,6 @@ jobs:
         with:
           node-version: 16
           cache: "npm"
-          cache-dependency-path: ${{ env.PATH_PREFIX }}/package-lock.json
           # Our Design System is on github's package registry
           registry-url: "https://npm.pkg.github.com"
 
