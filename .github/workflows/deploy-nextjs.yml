@@ -11,7 +11,7 @@ on:
         required: true
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     defaults:
