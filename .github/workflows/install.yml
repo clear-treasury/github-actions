@@ -34,8 +34,8 @@ jobs:
         working-directory: ${{ inputs.working-directory || github.workspace }}
 
     env:
-      PATH_PREFIX: ${{ inputs.working-directory != '' && format('{0}/{1}', github.workspace, inputs.working-directory) || github.workspace }}
-      CACHE_PREFIX: ${{ inputs.working-directory != '' && format('{0}-', inputs.working-directory) || '' }}
+      PATH_PREFIX: ${{ inputs.working-directory && format('{0}/{1}', github.workspace, inputs.working-directory) || github.workspace }}
+      CACHE_PREFIX: ${{ inputs.working-directory && format('{0}-', inputs.working-directory) || '' }}
 
     outputs:
       cache-path: ${{ steps.cache.outputs.path }}
