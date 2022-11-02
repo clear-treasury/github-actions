@@ -1,0 +1,65 @@
+name: Deploy infra with CDK
+
+on:
+  workflow_call:
+    inputs:
+      env:
+        description: "The name of the environment to deploy to. Defaults to nonprod."
+        default: "nonprod"
+        required: false
+        type: string
+
+    secrets:
+      aws-access-key-id:
+        required: true
+      aws-secret-access-key:
+        required: true
+      aws-region:
+        required: true
+      aws-account-id:
+        required: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: infra
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: "npm"
+          cache-dependency-path: infra/package-lock.json
+
+      - name: Load infra dependencies
+        uses: actions/cache@v3
+        with:
+          path: infra/node_modules
+          key: infra-node_modules-${{ hashFiles('infra/package-lock.json') }}
+
+      - name: Configure AWS credentials
+        # REF: https://github.com/aws-actions/configure-aws-credentials/issues/489#issuecomment-1278145876
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-region: ${{ secrets.aws-region }}
+
+      - name: Deploy
+        env:
+          AWS_ACCOUNT_ID: ${{ secrets.aws-account-id }}
+          AWS_REGION: ${{ secrets.aws-region }}
+        run: |
+          npm run cdk bootstrap
+          npm run cdk deploy -- --all --require-approval=never \
+            --context env="${{ inputs.env }}" \
+            --context branch="${{ github.ref_name }}" \
+            --context stack_name="${{ github.ref_name }}-${{ github.event.repository.id }}" \
+            --context stack_description="${{ github.event.repository.html_url }}/tree/${{ github.ref_name }}"
