@@ -10,7 +10,7 @@ on:
         type: string
 
 jobs:
-  unit-tests:
+  unit-test:
     runs-on: ubuntu-latest
 
     defaults:
