@@ -38,6 +38,6 @@ jobs:
       - name: Build
         run: |
           npm run build
-          if [[ -d node_modules/@sladg/nextjs-lambda ]]; then
-            npx --package @sladg/nextjs-lambda next-utils pack
+          if [[ -d infra/node_modules/@sladg/nextjs-lambda ]]; then
+            npm --prefix infra exec --package @sladg/nextjs-lambda -- next-utils pack
           fi
