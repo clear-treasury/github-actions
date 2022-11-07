@@ -34,7 +34,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace}}/node_modules
-          key: ${{ format('node_modules-{0}', hashFiles('package-lock.json')) }}
+          key: ${{ format('node_modules-{0}', hashFiles(format('{0}/package-lock.json', github.workspace))) }}
 
       - name: Load infra dependencies
         uses: actions/cache@v3
@@ -49,7 +49,8 @@ jobs:
             ${{ github.workspace }}/.next
           key: nextjs-${{ hashFiles(format('{0}/package-lock.json', github.workspace)) }}-${{ hashFiles(format('{0}/**.[jt]s', github.workspace), format('{0}/**.[jt]sx', github.workspace)) }}
 
-      - name: Cache nextjs build dirs
+      - name: Cache packaged artefacts
+        id: cache-artefacts
         uses: actions/cache@v3
         with:
           path: |
@@ -57,7 +58,10 @@ jobs:
           # Generate a new cache whenever packages or source files change.
           key: nextjs-lambda-${{ hashFiles(format('{0}/package-lock.json', github.workspace)) }}-${{ hashFiles(format('{0}/**.[jt]s', github.workspace), format('{0}/**.[jt]sx', github.workspace)) }}
 
-      - name: Package for deploy
+      - name: Package artefacts for deploy
+        if: steps.cache-artefacts.outputs.cache-hit != 'true'
+        with:
+          working-directory: ${{ github.workspace }}
         run: |
           if [[ -d infra/node_modules/@sladg/nextjs-lambda ]]; then
             npm --prefix infra exec --package @sladg/nextjs-lambda -- next-utils pack
