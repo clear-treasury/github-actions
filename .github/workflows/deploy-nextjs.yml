@@ -48,7 +48,7 @@ jobs:
           path: |
             ${{ github.workspace }}/.next
             ${{ github.workspace }}/next.out
-          key: nextjs-${{ hashFiles(format('${0}/package-lock.json', github.workspace)) }}-${{ hashFiles(format('${0}/**.[jt]s', '${0}/**.[jt]sx', github.workspace)) }}
+          key: nextjs-${{ hashFiles(format('{0}/package-lock.json', github.workspace)) }}-${{ hashFiles(format('{0}/**.[jt]s', '{0}/**.[jt]sx', github.workspace)) }}
 
       - name: Configure AWS credentials
         # REF: https://github.com/aws-actions/configure-aws-credentials/issues/489#issuecomment-1278145876
