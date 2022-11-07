@@ -63,6 +63,7 @@ jobs:
           echo "restore=${{ format('{0}node_modules-', env.CACHE_PREFIX) }}" >> $GITHUB_OUTPUT
 
       - name: Cache dependencies
+        id: cache-dependencies
         uses: actions/cache@v3
         with:
           path: ${{ steps.cache.outputs.path }}
@@ -71,6 +72,8 @@ jobs:
 
       # Skip post-install scripts here, as a malicious script could steal NODE_AUTH_TOKEN.
       - name: Install dependencies (without scripts)
+        id: install
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: npm ci --ignore-scripts ${{ inputs.legacy-peer-deps == true && '--legacy-peer-deps' || '' }}
         env:
           # See https://github.com/actions/setup-node/blob/main/docs/advanced-usage.md#use-private-packages
@@ -78,4 +81,5 @@ jobs:
 
       # `npm rebuild` will run all those post-install scripts for us.
       - name: Run post-install scripts
+        if: steps.install.outcome == 'success'
         run: npm rebuild && npm run prepare --if-present
