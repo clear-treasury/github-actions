@@ -28,16 +28,11 @@ jobs:
       - name: Cache nextjs build dirs
         uses: actions/cache@v3
         with:
-          # .next/standalone and next.out are generated when deploying with @sledg/nextjs-lambda
           path: |
             ${{ github.workspace }}/.next
-            ${{ github.workspace }}/next.out
           # Generate a new cache whenever packages or source files change.
           key: nextjs-${{ hashFiles(format('{0}/package-lock.json', github.workspace)) }}-${{ hashFiles(format('{0}/**.[jt]s', github.workspace), format('{0}/**.[jt]sx', github.workspace)) }}
 
       - name: Build
         run: |
           npm run build
-          if [[ -d infra/node_modules/@sladg/nextjs-lambda ]]; then
-            npm --prefix infra exec --package @sladg/nextjs-lambda -- next-utils pack
-          fi
