@@ -60,8 +60,7 @@ jobs:
 
       - name: Package artefacts for deploy
         if: steps.cache-artefacts.outputs.cache-hit != 'true'
-        with:
-          working-directory: ${{ github.workspace }}
+        working-directory: ${{ github.workspace }}
         run: |
           if [[ -d infra/node_modules/@sladg/nextjs-lambda ]]; then
             npm --prefix infra exec --package @sladg/nextjs-lambda -- next-utils pack
