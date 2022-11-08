@@ -31,7 +31,7 @@ jobs:
           path: |
             ${{ github.workspace }}/.next
           # Generate a new cache whenever packages or source files change.
-          key: nextjs-${{ hashFiles(format('{0}/package-lock.json', github.workspace)) }}-${{ hashFiles(format('{0}/src/**.[jt]s', github.workspace), format('{0}/src/**.[jt]sx', github.workspace)) }}
+          key: nextjs-${{ hashFiles(format('{0}/package-lock.json', github.workspace)) }}-${{ hashFiles(format('{0}/src/**.[jt]sx?', github.workspace), format('{0}/public/**', github.workspace), format('{0}/*.config.*', github.workspace)) }}
 
       - name: Build
         run: |
