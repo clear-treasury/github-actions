@@ -2,6 +2,10 @@ name: Deploy Nextjs app with CDK
 
 on:
   workflow_call:
+    inputs:
+      aws-account-name:
+        type: string
+        required: true
     secrets:
       aws-access-key-id:
         required: true
@@ -9,8 +13,6 @@ on:
         required: true
       aws-region:
         required: true
-      aws-account-id:
-        required: false
 
 jobs:
   deploy:
@@ -66,11 +68,9 @@ jobs:
           aws-region: ${{ secrets.aws-region }}
 
       - name: Deploy
-        env:
-          AWS_ACCOUNT_ID: ${{ secrets.aws-account-id }}
-          AWS_REGION: ${{ secrets.aws-region }}
         run: |
           npm run cdk bootstrap
           npm run cdk deploy -- --all --require-approval=never \
+            -c account="${{ inputs.aws-account-name }}" \
             -c stack_name="${{ github.ref_name }}-${{ github.event.repository.id }}" \
             -c stack_description="${{ github.event.repository.html_url }}/tree/${{ github.ref_name }}"
