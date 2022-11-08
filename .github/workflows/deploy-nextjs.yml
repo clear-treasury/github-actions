@@ -71,6 +71,7 @@ jobs:
         run: |
           npm run cdk bootstrap
           npm run cdk deploy -- --all --require-approval=never \
+            -c branch="${{ github.ref_name }}" \
             -c account="${{ inputs.aws-account-name }}" \
             -c stack_name="${{ github.ref_name }}-${{ github.event.repository.id }}" \
             -c stack_description="${{ github.event.repository.html_url }}/tree/${{ github.ref_name }}"
