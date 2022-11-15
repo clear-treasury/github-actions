@@ -10,9 +10,9 @@ on:
         type: string
       aws-account-name: 
         description: "The name of the environment to deploy to. Defaults to nonprod. Replaces env"
-          default: "nonprod"
-          required: false
-          type: string
+        default: "nonprod"
+        required: false
+        type: string
 
     secrets:
       aws-access-key-id:
