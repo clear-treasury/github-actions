@@ -8,6 +8,7 @@ on:
         default: "nonprod"
         required: false
         type: string
+
       aws-account-name: 
         description: "The name of the environment to deploy to. Defaults to nonprod. Replaces env"
         default: "nonprod"
