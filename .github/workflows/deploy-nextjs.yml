@@ -60,6 +60,7 @@ jobs:
           fi
 
       - name: Configure AWS credentials
+        id: aws-credentials
         # REF: https://github.com/aws-actions/configure-aws-credentials/issues/489#issuecomment-1278145876
         uses: aws-actions/configure-aws-credentials@v1-node16
         with:
@@ -68,6 +69,8 @@ jobs:
           aws-region: ${{ secrets.aws-region }}
 
       - name: Deploy
+        env:
+          AWS_ACCOUNT_ID: ${{ steps.aws-credentials.outputs.aws-account-id }}
         run: |
           npm run cdk bootstrap
           npm run cdk deploy -- --all --require-approval=never \
