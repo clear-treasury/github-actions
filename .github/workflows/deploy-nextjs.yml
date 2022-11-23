@@ -56,7 +56,7 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: |
           if [[ -d infra/node_modules/@sladg/nextjs-lambda ]]; then
-            npm --prefix infra exec --package @sladg/nextjs-lambda -- next-utils pack
+            npm exec --yes --package infra/node_modules/@sladg/nextjs-lambda -- next-utils pack
           fi
 
       - name: Configure AWS credentials
