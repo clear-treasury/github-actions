@@ -8,6 +8,10 @@ on:
         default: ""
         required: false
         type: string
+    
+    secrets:
+      postman_api_key:
+        required: false
 
 jobs:
   int-test:
@@ -20,6 +24,7 @@ jobs:
     env:
       PATH_PREFIX: ${{ inputs.working-directory && format('{0}/{1}', github.workspace, inputs.working-directory) || github.workspace }}
       CACHE_PREFIX: ${{ inputs.working-directory && format('{0}-', inputs.working-directory) || '' }}
+      POSTMAN_API_KEY: ${{ secrets.postman_api_key || '' }}
 
     steps:
       - name: Checkout repo
