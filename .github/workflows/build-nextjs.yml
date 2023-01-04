@@ -2,6 +2,13 @@ name: Build next.js app
 
 on:
   workflow_call:
+    secrets:
+      sentry-auth-token:
+        required: false
+      sentry-enviroment:
+        required: false
+      sentry-dsn:
+        required: false
 
 jobs:
   build:
@@ -34,5 +41,9 @@ jobs:
           key: nextjs-${{ hashFiles(format('{0}/package-lock.json', github.workspace)) }}-${{ hashFiles(format('{0}/src/**.[jt]sx?', github.workspace), format('{0}/public/**', github.workspace), format('{0}/*.config.*', github.workspace)) }}
 
       - name: Build
+        env:
+          NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.sentry-dsn }}
+          NEXT_PUBLIC_SENTRY_ENVIRONMENT: ${{ secrets.sentry-environment }}}
+          SENTRY_AUTH_TOKEN: ${{ secrets.sentry-auth-token }}
         run: |
           npm run build
