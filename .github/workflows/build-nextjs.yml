@@ -11,7 +11,7 @@ on:
     secrets:
       sentry-auth-token:
         required: false
-      sentry-enviroment:
+      sentry-environment:
         required: false
       sentry-dsn:
         required: false
