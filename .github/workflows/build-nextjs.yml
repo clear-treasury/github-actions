@@ -3,7 +3,7 @@ name: Build next.js app
 on:
   workflow_call:
     inputs:
-      cache-predix:
+      cache-prefix:
         description: "The prefix to use when caching build. Defaults to empty string"
         default: ""
         required: false
