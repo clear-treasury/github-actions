@@ -13,6 +13,10 @@ on:
         required: true
       aws-region:
         required: true
+      user_pool_id:
+        required: false
+      user_pool_web_client_id:
+        required: false
 
 jobs:
   deploy:
@@ -71,6 +75,8 @@ jobs:
       - name: Deploy
         env:
           AWS_ACCOUNT_ID: ${{ steps.aws-credentials.outputs.aws-account-id }}
+          USER_POOL_ID: ${{ secrets.user_pool_id || '' }}
+          USER_POOL_WEB_CLIENT_ID: ${{ secrets.user_pool_web_client_id || '' }}
         run: |
           npm run cdk bootstrap
           npm run cdk deploy -- --all --require-approval=never \
