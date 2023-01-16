@@ -17,9 +17,9 @@ on:
         required: true
       aws-region:
         required: true
-      user_pool_id:
+      admin_user_pool_id:
         required: false
-      user_pool_web_client_id:
+      admin_user_pool_web_client_id:
         required: false
       sentry-auth-token:
         required: false
