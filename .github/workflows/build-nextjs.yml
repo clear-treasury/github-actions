@@ -2,6 +2,19 @@ name: Build next.js app
 
 on:
   workflow_call:
+    inputs:
+      cache-prefix:
+        description: "The prefix to use when caching build. Defaults to empty string"
+        default: ""
+        required: false
+        type: string
+    secrets:
+      sentry-auth-token:
+        required: false
+      sentry-environment:
+        required: false
+      sentry-dsn:
+        required: false
 
 jobs:
   build:
@@ -31,8 +44,12 @@ jobs:
           path: |
             ${{ github.workspace }}/.next
           # Generate a new cache whenever packages or source files change.
-          key: nextjs-${{ hashFiles(format('{0}/package-lock.json', github.workspace)) }}-${{ hashFiles(format('{0}/src/**.[jt]sx?', github.workspace), format('{0}/public/**', github.workspace), format('{0}/*.config.*', github.workspace)) }}
+          key: nextjs${{inputs.cache-prefix}}-${{ hashFiles(format('{0}/package-lock.json', github.workspace)) }}-${{ hashFiles(format('{0}/src/**.[jt]sx?', github.workspace), format('{0}/public/**', github.workspace), format('{0}/*.config.*', github.workspace)) }}
 
       - name: Build
+        env:
+          NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.sentry-dsn }}
+          NEXT_PUBLIC_SENTRY_ENVIRONMENT: ${{ secrets.sentry-environment }}}
+          SENTRY_AUTH_TOKEN: ${{ secrets.sentry-auth-token }}
         run: |
           npm run build
