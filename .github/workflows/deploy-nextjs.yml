@@ -52,12 +52,6 @@ jobs:
           path: ${{ github.workspace}}/node_modules
           key: ${{ format('node_modules-{0}', hashFiles(format('{0}/package-lock.json', github.workspace))) }}
 
-      - name: Environment Variables
-        working-directory: ${{ github.workspace }}
-        env:
-          NEXT_PUBLIC_ADMIN_USER_POOL_ID: ${{ secrets.next_public_admin_user_pool_id || '' }}
-          NEXT_PUBLIC_ADMIN_USER_POOL_WEB_CLIENT_ID: ${{ secrets.next_public_admin_user_pool_web_client_id || '' }}
-
       - name: Load infra dependencies
         uses: actions/cache@v3
         with:
