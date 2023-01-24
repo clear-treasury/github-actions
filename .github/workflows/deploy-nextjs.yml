@@ -17,9 +17,9 @@ on:
         required: true
       aws-region:
         required: true
-      next_public_admin_user_pool_id:
+      admin_user_pool_id:
         required: false
-      next_public_admin_user_pool_web_client_id:
+      admin_user_pool_web_client_id:
         required: false
       sentry-auth-token:
         required: false
@@ -37,8 +37,8 @@ jobs:
         working-directory: infra
 
     env:
-      NEXT_PUBLIC_ADMIN_USER_POOL_ID: ${{ secrets.next_public_admin_user_pool_id || '' }}
-      NEXT_PUBLIC_ADMIN_USER_POOL_WEB_CLIENT_ID: ${{ secrets.next_public_admin_user_pool_web_client_id || '' }}
+      ADMIN_USER_POOL_ID: ${{ secrets.admin_user_pool_id || '' }}
+      ADMIN_USER_POOL_WEB_CLIENT_ID: ${{ secrets.admin_user_pool_web_client_id || '' }}
 
     steps:
       - name: Checkout repo
@@ -73,8 +73,8 @@ jobs:
         if: steps.cache-artefacts.outputs.cache-hit != 'true'
         working-directory: ${{ github.workspace }}
         env:
-          NEXT_PUBLIC_ADMIN_USER_POOL_ID: ${{ secrets.next_public_admin_user_pool_id || '' }}
-          NEXT_PUBLIC_ADMIN_USER_POOL_WEB_CLIENT_ID: ${{ secrets.next_public_admin_user_pool_web_client_id || '' }}
+          ADMIN_USER_POOL_ID: ${{ secrets.admin_user_pool_id || '' }}
+          ADMIN_USER_POOL_WEB_CLIENT_ID: ${{ secrets.admin_user_pool_web_client_id || '' }}
         run: |
           if [[ -d infra/node_modules/@sladg/nextjs-lambda ]]; then
             npm exec --yes --package infra/node_modules/@sladg/nextjs-lambda -- next-utils pack
@@ -92,8 +92,8 @@ jobs:
       - name: Deploy
         env:
           AWS_ACCOUNT_ID: ${{ steps.aws-credentials.outputs.aws-account-id }}
-          NEXT_PUBLIC_ADMIN_USER_POOL_ID: ${{ secrets.next_public_admin_user_pool_id || '' }}
-          NEXT_PUBLIC_ADMIN_USER_POOL_WEB_CLIENT_ID: ${{ secrets.next_public_admin_user_pool_web_client_id || '' }}
+          ADMIN_USER_POOL_ID: ${{ secrets.admin_user_pool_id || '' }}
+          ADMIN_USER_POOL_WEB_CLIENT_ID: ${{ secrets.admin_user_pool_web_client_id || '' }}
           SENTRY_DSN: ${{ secrets.sentry-dsn }}
           SENTRY_ENVIRONMENT: ${{ secrets.sentry-environment }}}
           SENTRY_AUTH_TOKEN: ${{ secrets.sentry-auth-token }}

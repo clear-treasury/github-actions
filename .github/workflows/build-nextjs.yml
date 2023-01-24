@@ -9,9 +9,9 @@ on:
         required: false
         type: string
     secrets:
-      next_public_admin_user_pool_id:
+      admin_user_pool_id:
         required: false
-      next_public_admin_user_pool_web_client_id:
+      admin_user_pool_web_client_id:
         required: false
       sentry-auth-token:
         required: false
@@ -55,7 +55,7 @@ jobs:
           NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.sentry-dsn }}
           NEXT_PUBLIC_SENTRY_ENVIRONMENT: ${{ secrets.sentry-environment }}}
           SENTRY_AUTH_TOKEN: ${{ secrets.sentry-auth-token }}
-          NEXT_PUBLIC_ADMIN_USER_POOL_ID: ${{ secrets.next_public_admin_user_pool_id || '' }}
-          NEXT_PUBLIC_ADMIN_USER_POOL_WEB_CLIENT_ID: ${{ secrets.next_public_admin_user_pool_web_client_id || '' }}
+          ADMIN_USER_POOL_ID: ${{ secrets.admin_user_pool_id || '' }}
+          ADMIN_USER_POOL_WEB_CLIENT_ID: ${{ secrets.admin_user_pool_web_client_id || '' }}
         run: |
           npm run build
