@@ -9,7 +9,9 @@ on:
         required: false
         type: string
       next_public_app_account:
+        default: ""
         required: false
+        type: string
     secrets:
       sentry-auth-token:
         required: false
