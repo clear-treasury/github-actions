@@ -10,6 +10,8 @@ on:
         type: string
         required: false
         default: ""
+      next_public_app_account:
+        required: false
     secrets:
       aws-access-key-id:
         required: true
@@ -17,8 +19,6 @@ on:
         required: true
       aws-region:
         required: true
-      next_public_app_account:
-        required: false
       sentry-auth-token:
         required: false
       sentry-enviroment:
@@ -88,7 +88,7 @@ jobs:
       - name: Deploy
         env:
           AWS_ACCOUNT_ID: ${{ steps.aws-credentials.outputs.aws-account-id }}
-          NEXT_PUBLIC_APP_ACCOUNT: ${{ secrets.next_public_app_account || '' }}
+          NEXT_PUBLIC_APP_ACCOUNT: ${{ inputs.next_public_app_account || '' }}
           SENTRY_DSN: ${{ secrets.sentry-dsn }}
           SENTRY_ENVIRONMENT: ${{ secrets.sentry-environment }}}
           SENTRY_AUTH_TOKEN: ${{ secrets.sentry-auth-token }}

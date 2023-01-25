@@ -8,9 +8,9 @@ on:
         default: ""
         required: false
         type: string
-    secrets:
       next_public_app_account:
         required: false
+    secrets:
       sentry-auth-token:
         required: false
       sentry-environment:
@@ -53,6 +53,6 @@ jobs:
           NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.sentry-dsn }}
           NEXT_PUBLIC_SENTRY_ENVIRONMENT: ${{ secrets.sentry-environment }}}
           SENTRY_AUTH_TOKEN: ${{ secrets.sentry-auth-token }}
-          NEXT_PUBLIC_APP_ACCOUNT: ${{ secrets.next_public_app_account || '' }}
+          NEXT_PUBLIC_APP_ACCOUNT: ${{ inputs.next_public_app_account || '' }}
         run: |
           npm run build
