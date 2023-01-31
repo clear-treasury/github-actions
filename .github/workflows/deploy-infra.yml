@@ -70,4 +70,9 @@ jobs:
             --context account="${{ inputs.aws-account-name }}" \
             --context branch="${{ github.ref_name }}" \
             --context stack_name="${{ github.ref_name }}-${{ github.event.repository.id }}" \
-            --context stack_description="${{ github.event.repository.html_url }}/tree/${{ github.ref_name }}"
+            --context stack_description="${{ github.event.repository.html_url }}/tree/${{ github.ref_name }}" \
+            --output output.json
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat output.json >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
