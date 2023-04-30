@@ -14,7 +14,7 @@ Coming soon...
 ## Contributing
 
 > :warning: **NOTE:** This repo makes use of
-> [npm workspaces](https://github.com/npm/rfcs/blob/latest/accepted/0026-workspaces.md)
+> [npm workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces)
 > which is a feature of `npm v7`. In order to contribute to this repo you'll
 > need to install the latest beta version: `npm i -g npm@7`
 
