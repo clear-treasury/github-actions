@@ -1,0 +1,60 @@
+name: Build next.js app
+
+on:
+  workflow_call:
+    inputs:
+      cache-prefix:
+        description: "The prefix to use when caching build. Defaults to empty string"
+        default: ""
+        required: false
+        type: string
+      next_public_app_account:
+        default: ""
+        required: false
+        type: string
+    secrets:
+      sentry-auth-token:
+        required: false
+      sentry-environment:
+        required: false
+      sentry-dsn:
+        required: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: "npm"
+
+      # TODO: assumes the app is in the root directory but might need to accept a working-directory input
+      - name: Load app dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace}}/node_modules
+          key: ${{ format('node_modules-{0}', hashFiles('package-lock.json')) }}
+
+      # see https://nextjs.org/docs/advanced-features/ci-build-caching#github-actions
+      - name: Cache nextjs build dirs
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/.next
+          # Generate a new cache whenever packages or source files change.
+          key: nextjs${{inputs.cache-prefix}}-${{ hashFiles(format('{0}/package-lock.json', github.workspace)) }}-${{ hashFiles(format('{0}/src/**.[jt]sx?', github.workspace), format('{0}/public/**', github.workspace), format('{0}/*.config.*', github.workspace)) }}
+
+      - name: Build
+        env:
+          NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.sentry-dsn }}
+          NEXT_PUBLIC_SENTRY_ENVIRONMENT: ${{ secrets.sentry-environment }}}
+          SENTRY_AUTH_TOKEN: ${{ secrets.sentry-auth-token }}
+          NEXT_PUBLIC_APP_ACCOUNT: ${{ inputs.next_public_app_account || '' }}
+        run: |
+          npm run build
