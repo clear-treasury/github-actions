@@ -1,0 +1,103 @@
+name: Deploy Nextjs app with CDK
+
+on:
+  workflow_call:
+    inputs:
+      aws-account-name:
+        type: string
+        required: true
+      build-cache-prefix:
+        type: string
+        required: false
+        default: ""
+      next_public_app_account:
+        default: ""
+        required: false
+        type: string
+    secrets:
+      aws-access-key-id:
+        required: true
+      aws-secret-access-key:
+        required: true
+      aws-region:
+        required: true
+      sentry-auth-token:
+        required: false
+      sentry-enviroment:
+        required: false
+      sentry-dsn:
+        required: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: infra
+
+    env:
+      NEXT_PUBLIC_APP_ACCOUNT: ${{ secrets.next_public_app_account || '' }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: "npm"
+
+      - name: Load app dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace}}/node_modules
+          key: ${{ format('node_modules-{0}', hashFiles(format('{0}/package-lock.json', github.workspace))) }}
+
+      - name: Load infra dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ format('{0}/infra/node_modules', github.workspace) }}
+          key: infra-node_modules-${{ hashFiles(format('{0}/infra/package-lock.json', github.workspace)) }}
+
+      - name: Load nextjs build dirs
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/.next
+          key: nextjs${{inputs.build-cache-prefix}}-${{ hashFiles(format('{0}/package-lock.json', github.workspace)) }}-${{ hashFiles(format('{0}/src/**.[jt]sx?', github.workspace), format('{0}/public/**', github.workspace), format('{0}/*.config.*', github.workspace)) }}
+
+      - name: Package artefacts for deploy
+        if: steps.cache-artefacts.outputs.cache-hit != 'true'
+        working-directory: ${{ github.workspace }}
+        env:
+          NEXT_PUBLIC_APP_ACCOUNT: ${{ secrets.next_public_app_account || '' }}
+        run: |
+          if [[ -d infra/node_modules/@sladg/nextjs-lambda ]]; then
+            npm exec --yes --package infra/node_modules/@sladg/nextjs-lambda -- next-utils pack
+          fi
+
+      - name: Configure AWS credentials
+        id: aws-credentials
+        # REF: https://github.com/aws-actions/configure-aws-credentials/issues/489#issuecomment-1278145876
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-region: ${{ secrets.aws-region }}
+
+      - name: Deploy
+        env:
+          AWS_ACCOUNT_ID: ${{ steps.aws-credentials.outputs.aws-account-id }}
+          NEXT_PUBLIC_APP_ACCOUNT: ${{ inputs.next_public_app_account || '' }}
+          SENTRY_DSN: ${{ secrets.sentry-dsn }}
+          SENTRY_ENVIRONMENT: ${{ secrets.sentry-environment }}}
+          SENTRY_AUTH_TOKEN: ${{ secrets.sentry-auth-token }}
+        run: |
+          npm run cdk bootstrap
+          npm run cdk deploy -- --all --require-approval=never \
+            -c branch="${{ github.ref_name }}" \
+            -c account="${{ inputs.aws-account-name }}" \
+            -c stack_name="${{ github.ref_name }}-${{ github.event.repository.id }}" \
+            -c stack_description="${{ github.event.repository.html_url }}/tree/${{ github.ref_name }}"

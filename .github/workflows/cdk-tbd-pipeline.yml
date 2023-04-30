@@ -1,0 +1,376 @@
+name: CDK TBD pipeline
+on:
+  workflow_call:
+    secrets:
+      prod-aws-access-key-id:
+        required: true
+      prod-aws-secret-access-key:
+        required: true
+      prod-aws-region:
+        required: true
+
+      nonprod-aws-access-key-id:
+        required: true
+      nonprod-aws-secret-access-key:
+        required: true
+      nonprod-aws-region:
+        required: true
+
+      GPR_READ_TOKEN:
+        required: false
+
+    inputs:
+      debug:
+        required: false
+        type: boolean
+        default: false
+
+      working-directory:
+        required: false
+        type: string
+        default: .
+
+      infra-working-directory:
+        required: false
+        type: string
+        default: .
+
+      do-integration-test:
+        required: false
+        type: boolean
+        default: false
+
+      integration-test-working-directory:
+        required: false
+        type: string
+        default: .
+
+      overlay-artifact-dev:
+        required: false
+        type: string
+
+      overlay-artifact-prod:
+        required: false
+        type: string
+
+jobs:
+
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          # AWS Lambda runtimes go up to node 14
+          # node-version: 16
+          node-version: 14
+          cache: npm
+          # cache-dependency-path: "${{ inputs.working-directory }}/package-lock.json"
+          cache-dependency-path: |
+            ${{ inputs.working-directory }}/package-lock.json
+            ${{ inputs.infra-working-directory }}/package-lock.json
+      # - name: Cache node_modules
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ${{ inputs.working-directory }}/node_modules
+      #     key: cdk-deploy-node_modules-${{ hashFiles(format('{0}/package-lock.json', inputs.working-directory)) }}
+      #     restore-keys: cdk-deploy-node_modules-
+      - name: Install dependencies (without scripts)
+        if: inputs.working-directory != inputs.infra-working-directory
+        working-directory: ${{ inputs.working-directory }}
+        env:
+          # See https://github.com/actions/setup-node/blob/main/docs/advanced-usage.md#use-private-packages
+          NODE_AUTH_TOKEN: ${{ secrets.GPR_READ_TOKEN }}
+        # Use npm 7 for auto peer-dependency resolution
+        run: npm i -g npm@7 && npm ci --ignore-scripts
+      - name: Install infra dependencies (without scripts)
+        working-directory: ${{ inputs.infra-working-directory }}
+        run: npm i -g npm@7 && npm ci --ignore-scripts
+
+      # `npm rebuild` will run all those post-install scripts for us.
+      - name: Run post-install scripts
+        if: inputs.working-directory != inputs.infra-working-directory
+        working-directory: ${{ inputs.working-directory }}
+        run: npm rebuild && npm run prepare --if-present
+      - name: Run infra post-install scripts
+        if: inputs.infra-working-directory != inputs.infra-working-directory
+        working-directory: ${{ inputs.infra-working-directory }}
+        run: npm rebuild && npm run prepare --if-present
+
+  log-inputs:
+    runs-on: ubuntu-latest
+    if: inputs.debug
+    steps:
+      - name: inputs
+        run: |
+          cat << EOF
+          ${{ toJSON(inputs) }}
+          EOF
+      - name: secrets
+        run: |
+          cat << EOF
+          ${{ toJSON(secrets) }}
+          EOF
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.overlay-artifact-dev }}
+      - name: list overlay
+        run: ls -la
+
+  test:
+    runs-on: ubuntu-latest
+    needs:
+      - install
+    if: inputs.working-directory != inputs.infra-working-directory
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          # AWS Lambda runtimes go up to node 14
+          # node-version: 16
+          node-version: 14
+          cache: npm
+          cache-dependency-path: "${{ inputs.working-directory }}/package-lock.json"
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: ${{ inputs.working-directory }}/node_modules
+          key: cdk-deploy-node_modules-${{ hashFiles(format('{0}/package-lock.json', inputs.working-directory)) }}
+      - name: pull overlay
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.overlay-artifact-dev }}
+      - name: install dependancies
+        working-directory: ${{ inputs.working-directory }}
+        run: npm i -g npm@7 && npm install
+      - name: debug
+        if: inputs.debug
+        run: ls -la
+      - name: test
+        working-directory: ${{ inputs.working-directory }}
+        run: npm run test
+
+  test-infra:
+    runs-on: ubuntu-latest
+    needs:
+      - install
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          # AWS Lambda runtimes go up to node 14
+          # node-version: 16
+          node-version: 14
+          cache: npm
+          cache-dependency-path: "${{ inputs.infra-working-directory }}/package-lock.json"
+      - name: Cache infra node_modules
+        uses: actions/cache@v3
+        with:
+          path: ${{ inputs.infra-working-directory }}/node_modules
+          key: cdk-deploy-infra-node_modules-${{ hashFiles(format('{0}/package-lock.json', inputs.infra-working-directory)) }}
+      - name: pull overlay
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.overlay-artifact-dev }}
+      - name: install dependancies
+        working-directory: ${{ inputs.infra-working-directory }}
+        run: npm i -g npm@7 && npm install
+      - name: debug
+        if: inputs.debug
+        run: ls -la
+      - name: test
+        working-directory: ${{ inputs.infra-working-directory }}
+        run: npm run test
+
+  # build:
+  #   runs-on: ubuntu-latest
+  #   if: inputs.prebuild
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: actions/setup-node@v3
+  #       with:
+  #         # AWS Lambda runtimes go up to node 14
+  #         # node-version: 16
+  #         node-version: 14
+  #         cache: npm
+  #         cache-dependency-path: "${{ inputs.working-directory }}/package-lock.json"
+  #     - name: install dependancies
+  #       working-directory: ${{ inputs.working-directory }}
+  #       run: npm i -g npm@7 && npm install
+  #     - name: test
+  #       working-directory: ${{ inputs.working-directory }}
+  #       run: npm run build
+
+  deploy-dev:
+    runs-on: ubuntu-latest
+    needs:
+      - test
+      - test-infra
+      - install
+      # - build
+    if: always()
+    steps:
+      - name: fail if conditional job failed
+        if: ${{ needs.test-infra.result == 'failure' || needs.test.result == 'failure' || needs.install.result == 'failure' }}
+        run: exit 1
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          # AWS Lambda runtimes go up to node 14
+          # node-version: 16
+          node-version: 14
+          cache: npm
+          cache-dependency-path: "${{ inputs.infra-working-directory }}/package-lock.json"
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: ${{ inputs.working-directory }}/node_modules
+          key: cdk-deploy-node_modules-${{ hashFiles(format('{0}/package-lock.json', inputs.working-directory)) }}
+      - name: Cache infra node_modules
+        uses: actions/cache@v3
+        with:
+          path: ${{ inputs.infra-working-directory }}/node_modules
+          key: cdk-deploy-infra-node_modules-${{ hashFiles(format('{0}/package-lock.json', inputs.infra-working-directory)) }}
+      - name: pull overlay
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.overlay-artifact-dev }}
+      - name: install dependancies
+        run: npm i -g npm@7 && npm install
+        working-directory: ${{ inputs.working-directory }}
+      - name: install infra dependancies
+        run: npm i -g npm@7 && npm install
+        working-directory: ${{ inputs.infra-working-directory }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.nonprod-aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.nonprod-aws-secret-access-key }}
+          aws-region: ${{ secrets.nonprod-aws-region }}
+      - name: debug
+        # if: ${{ inputs.debug == 'true' }}
+        run: |
+          ls -la
+          ./node_modules/.bin/cdk --version
+          npm exec -- cdk --version
+        working-directory: ${{ inputs.infra-working-directory }}
+      - name: CDK bootstrap
+        run: npm exec -- cdk bootstrap
+        working-directory: ${{ inputs.infra-working-directory }}
+      - name: CDK deploy
+        run: >
+          npm exec -- cdk
+          deploy --require-approval=never -c branch="dev"
+          -c stack_name="dev-${{ github.event.repository.id }}"
+          -c stack_description="${{ github.event.repository.html_url }}/tree/dev"
+          --all
+        working-directory: ${{ inputs.infra-working-directory }}
+
+  integration-test:
+    name: integration test
+    if: inputs.do-integration-test
+    needs:
+      - deploy-dev
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          # AWS Lambda runtimes go up to node 14
+          # node-version: 16
+          node-version: 14
+          cache: npm
+          cache-dependency-path: "${{ inputs.integration-test-working-directory }}/package-lock.json"
+      - name: pull overlay
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.overlay-artifact-dev }}
+      - name: install dependancies
+        working-directory: ${{ inputs.integration-test-working-directory }}
+        run: npm i -g npm@7 && npm install
+      - name: debug
+        if: inputs.debug
+        run: ls -la
+      - name: test
+        working-directory: ${{ inputs.integration-test-working-directory }}
+        run: npm run integration-test
+
+  deploy-prod:
+    needs:
+      - deploy-dev
+      - integration-test
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: fail if conditional job failed
+        if: ${{ needs.integration-test.result == 'failure' || needs.deploy-dev.result == 'failure' }}
+        run: exit 1
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          # AWS Lambda runtimes go up to node 14
+          # node-version: 16
+          node-version: 14
+          cache: npm
+          cache-dependency-path: "${{ inputs.infra-working-directory }}/package-lock.json"
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: ${{ inputs.working-directory }}/node_modules
+          key: cdk-deploy-node_modules-${{ hashFiles(format('{0}/package-lock.json', inputs.working-directory)) }}
+      - name: Cache infra node_modules
+        uses: actions/cache@v3
+        with:
+          path: ${{ inputs.infra-working-directory }}/node_modules
+          key: cdk-deploy-infra-node_modules-${{ hashFiles(format('{0}/package-lock.json', inputs.infra-working-directory)) }}
+      - name: pull overlay
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.overlay-artifact-prod }}
+      - name: install dependancies
+        run: npm i -g npm@7 && npm install
+        working-directory: ${{ inputs.working-directory }}
+      - name: install infra dependancies
+        run: npm i -g npm@7 && npm install
+        working-directory: ${{ inputs.infra-working-directory }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.prod-aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.prod-aws-secret-access-key }}
+          aws-region: ${{ secrets.prod-aws-region }}
+      - name: debug
+        if: ${{ inputs.debug == 'true' }}
+        run: |
+            ls -la
+            npm exec -- cdk --version
+        working-directory: ${{ inputs.infra-working-directory }}
+      - name: CDK bootstrap
+        run: npm exec -- cdk bootstrap
+        working-directory: ${{ inputs.infra-working-directory }}
+      - name: CDK deploy
+        run: >
+          npm exec -- cdk
+          deploy --require-approval=never -c branch="main"
+          -c stack_name="main-${{ github.event.repository.id }}"
+          -c stack_description="${{ github.event.repository.html_url }}/tree/main"
+          --all
+        working-directory: ${{ inputs.infra-working-directory }}
+
+  notify-failure:
+    needs:
+      - deploy-dev
+      - deploy-prod
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: slack us for dev
+        run: |
+          echo "slack us"
+          echo '${{ toJSON(job) }}'
+      - name: fail if dev deploy failed
+        if: ${{ needs.deploy-dev.result != 'success' }}
+        run: exit 1
+      - name: fail if prod deploy failed
+        if: ${{ needs.deploy-prod.result != 'success' }}
+        run: exit 1
