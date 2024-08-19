@@ -94,4 +94,4 @@ jobs:
       # `npm rebuild` will run all those post-install scripts for us.
       - name: Run post-install scripts
         if: steps.install.outcome == 'success'
-        run: ${{ inputs.package-manager }} rebuild && ${{ inputs.package-manager }} run prepare --if-present
+        run: ${{ inputs.package-manager }} rebuild && ${{ inputs.package-manager }} run --if-present prepare
