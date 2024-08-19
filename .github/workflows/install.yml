@@ -61,7 +61,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
           cache: ${{ inputs.package-manager }}
           cache-dependency-path: ${{ env.PATH_PREFIX }}/${{ env.PACKAGE_LOCK }}
           # Our Design System is on github's package registry
