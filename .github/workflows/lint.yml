@@ -28,7 +28,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install pnpm
         if: inputs.package-manager == 'pnpm'
@@ -38,7 +38,7 @@ jobs:
 
       - name: Setup node
         if: inputs.package-manager == 'npm'
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "npm"
@@ -46,7 +46,7 @@ jobs:
 
       - name: Setup node
         if: inputs.package-manager == 'pnpm'
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "pnpm"
@@ -54,14 +54,14 @@ jobs:
 
       - name: Load dependencies
         if: inputs.package-manager == 'npm'
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.PATH_PREFIX }}/node_modules
           key: ${{ format('{0}node_modules-{1}', env.CACHE_PREFIX, hashFiles(format('{0}/package-lock.json', env.PATH_PREFIX))) }}
 
       - name: Load dependencies
         if: inputs.package-manager == 'pnpm'
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.PATH_PREFIX }}/node_modules
           key: ${{ format('{0}node_modules-{1}', env.CACHE_PREFIX, hashFiles(format('{0}/pnpm-lock.yaml', env.PATH_PREFIX))) }}
