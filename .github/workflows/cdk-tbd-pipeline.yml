@@ -58,7 +58,7 @@ jobs:
   install:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
           # AWS Lambda runtimes go up to node 14
@@ -123,7 +123,7 @@ jobs:
       - install
     if: inputs.working-directory != inputs.infra-working-directory
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
           # AWS Lambda runtimes go up to node 14
@@ -155,7 +155,7 @@ jobs:
     needs:
       - install
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
           # AWS Lambda runtimes go up to node 14
@@ -213,7 +213,7 @@ jobs:
       - name: fail if conditional job failed
         if: ${{ needs.test-infra.result == 'failure' || needs.test.result == 'failure' || needs.install.result == 'failure' }}
         run: exit 1
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
           # AWS Lambda runtimes go up to node 14
@@ -273,7 +273,7 @@ jobs:
       - deploy-dev
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
           # AWS Lambda runtimes go up to node 14
@@ -305,7 +305,7 @@ jobs:
       - name: fail if conditional job failed
         if: ${{ needs.integration-test.result == 'failure' || needs.deploy-dev.result == 'failure' }}
         run: exit 1
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
           # AWS Lambda runtimes go up to node 14

@@ -27,7 +27,7 @@ jobs:
           result-encoding: string
 
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: align node version with action runtime
         uses: actions/setup-node@v2
