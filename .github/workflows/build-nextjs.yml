@@ -36,14 +36,14 @@ jobs:
 
       # TODO: assumes the app is in the root directory but might need to accept a working-directory input
       - name: Load app dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ github.workspace}}/node_modules
           key: ${{ format('node_modules-{0}', hashFiles('package-lock.json')) }}
 
       # see https://nextjs.org/docs/advanced-features/ci-build-caching#github-actions
       - name: Cache nextjs build dirs
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ${{ github.workspace }}/.next

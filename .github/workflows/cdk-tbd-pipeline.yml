@@ -132,7 +132,7 @@ jobs:
           cache: npm
           cache-dependency-path: "${{ inputs.working-directory }}/package-lock.json"
       - name: Cache node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ inputs.working-directory }}/node_modules
           key: cdk-deploy-node_modules-${{ hashFiles(format('{0}/package-lock.json', inputs.working-directory)) }}
@@ -164,7 +164,7 @@ jobs:
           cache: npm
           cache-dependency-path: "${{ inputs.infra-working-directory }}/package-lock.json"
       - name: Cache infra node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ inputs.infra-working-directory }}/node_modules
           key: cdk-deploy-infra-node_modules-${{ hashFiles(format('{0}/package-lock.json', inputs.infra-working-directory)) }}
@@ -222,12 +222,12 @@ jobs:
           cache: npm
           cache-dependency-path: "${{ inputs.infra-working-directory }}/package-lock.json"
       - name: Cache node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ inputs.working-directory }}/node_modules
           key: cdk-deploy-node_modules-${{ hashFiles(format('{0}/package-lock.json', inputs.working-directory)) }}
       - name: Cache infra node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ inputs.infra-working-directory }}/node_modules
           key: cdk-deploy-infra-node_modules-${{ hashFiles(format('{0}/package-lock.json', inputs.infra-working-directory)) }}
@@ -314,12 +314,12 @@ jobs:
           cache: npm
           cache-dependency-path: "${{ inputs.infra-working-directory }}/package-lock.json"
       - name: Cache node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ inputs.working-directory }}/node_modules
           key: cdk-deploy-node_modules-${{ hashFiles(format('{0}/package-lock.json', inputs.working-directory)) }}
       - name: Cache infra node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ inputs.infra-working-directory }}/node_modules
           key: cdk-deploy-infra-node_modules-${{ hashFiles(format('{0}/package-lock.json', inputs.infra-working-directory)) }}

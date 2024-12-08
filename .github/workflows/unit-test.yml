@@ -61,7 +61,7 @@ jobs:
 
       - name: Load dependencies
         if: inputs.package-manager == 'pnpm'
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.PATH_PREFIX }}/node_modules
           key: ${{ format('{0}node_modules-{1}', env.CACHE_PREFIX, hashFiles(format('{0}/pnpm-lock.yaml', env.PATH_PREFIX))) }}
