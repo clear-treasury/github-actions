@@ -50,19 +50,19 @@ jobs:
           cache: "npm"
 
       - name: Load app dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
           path: ${{ github.workspace}}/node_modules
           key: ${{ format('node_modules-{0}', hashFiles(format('{0}/package-lock.json', github.workspace))) }}
 
       - name: Load infra dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
           path: ${{ format('{0}/infra/node_modules', github.workspace) }}
           key: infra-node_modules-${{ hashFiles(format('{0}/infra/package-lock.json', github.workspace)) }}
 
       - name: Load nextjs build dirs
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/.next
